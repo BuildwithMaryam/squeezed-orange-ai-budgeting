@@ -6,6 +6,18 @@ AI automates your budget, spots money leaks, and suggests savings without access
 
 It reads only the alert emails you forward to a dedicated inbox (read-only Gmail) and any CSV you upload.
 
+## Requirements
+
+- Claude Code 2.1.275 or later, and the Claude desktop app (the dashboard is a Claude artifact, and the 6-hourly sync runs only while the app is open)
+- Python 3.9 or later
+- A dedicated Gmail inbox and a Google Cloud project (Gmail API, read-only access)
+- Purchase alerts turned on at each bank or card, sent to that inbox
+- Developed and tested on macOS; other systems are untested
+
+![Squeezed Orange dashboard overview](plugins/squeezed-orange/assets/screenshot.png)
+
+*Illustrative screenshot with made-up data.*
+
 <!-- eval-score:start -->
 **Tested:** 35 of 35 automated checks passing on 2026-11-24, plus 3 of 3 model-graded eval cases on 2026-11-25. Details are in `evals/`.
 <!-- eval-score:end -->
@@ -24,7 +36,7 @@ Squeezed Orange never logs in to your bank, so you connect it once yourself. Aft
 | 5. Delivery check (manual) | After setup, use each of your cards and accounts for your next purchases and watch your finance inbox to confirm an alert arrives for each one. If an account goes a month with no alerts, check its alert and forwarding settings. This cannot be tested automatically because it depends on your bank. |
 | 6. Optional backfill | Download a CSV from each bank or card website and upload it on the Spending tab to load past months. |
 
-Until step 5 or a few months of alerts, answers that need merchant history say "not enough history yet".
+Until step 6 or a few months of alerts, answers that need merchant history say "not enough history yet".
 
 ## Coming back: where to look
 
