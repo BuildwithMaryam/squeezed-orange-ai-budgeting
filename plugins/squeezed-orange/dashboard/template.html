@@ -1,0 +1,989 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Squeezed Orange</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one calm column of cards under a tab row; numbers first, detail below. */
+:root{
+  --bg:#faf6f1; --surface:#fffdfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --s1:#2a78d6; --brand:#ff8427; --brandtx:#b4540a; --brandsoft:#ffeedd; --s2:#eb6834; --s1soft:#cde2fb; --warn:#fab219; --crit:#d03b3b; --good:#0ca30c; --goodtx:#0b7a0b; --crittx:#b02a2a;
+  --font:system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#151312; --surface:#1f1c1a; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --s1:#3987e5; --brand:#ff8427; --brandtx:#ff9a4d; --brandsoft:#3a2416; --s2:#d95926; --s1soft:#184f95; --goodtx:#5fd35f; --crittx:#ff8a8a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#151312; --surface:#1f1c1a; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --s1:#3987e5; --brand:#ff8427; --brandtx:#ff9a4d; --brandsoft:#3a2416; --s2:#d95926; --s1soft:#184f95; --goodtx:#5fd35f; --crittx:#ff8a8a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--font);
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1{font-size:1.35rem;margin:0;letter-spacing:-.01em}
+h2{font-size:1rem;margin:0 0 4px}
+.sub{color:var(--ink2);font-size:.85rem;margin:0}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+nav{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--grid);position:sticky;top:0;z-index:10;background:var(--bg);padding-top:4px}
+nav a{padding:8px 12px;color:var(--ink2);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:.9rem}
+nav a[aria-current="page"]{color:var(--ink);border-color:var(--s1);font-weight:600}
+nav a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:10px;padding:16px;min-width:0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.kpi .v{font-size:1.6rem;font-weight:650;letter-spacing:-.02em}
+.kpi .l{font-size:.8rem;color:var(--ink2)}
+.kpi .n{font-size:.78rem;color:var(--ink2);margin-top:2px}
+.pane{display:flex;flex-direction:column;gap:16px}.pane[hidden]{display:none}
+.grid.two{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:start}
+h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);margin:14px 0 2px;font-weight:600}
+.pos{color:var(--goodtx)}.neg{color:var(--crittx)}
+.badge{display:inline-block;min-width:18px;margin-left:6px;padding:0 6px;border-radius:99px;font-size:.72rem;font-weight:650;line-height:18px;text-align:center;color:#0b0b0b;background:var(--warn)}
+.badge.crit{background:var(--crit);color:#fff}
+.big{margin:6px 0 0;font-size:1.25rem;font-variant-numeric:tabular-nums}
+.meter{position:relative;height:10px;background:var(--grid);border-radius:5px;margin:8px 0 6px}
+.meter .fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.meter .mark{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:var(--ink);border-radius:1px}
+.mini{display:block;height:4px;background:var(--grid);border-radius:2px;margin-top:3px;overflow:hidden;min-width:60px}.mini span{display:block;height:100%}
+.mute{background:var(--axis)}.good{background:var(--good)}.warn{background:var(--warn)}.crit{background:var(--crit)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.pill.warn{background:none;border-color:var(--warn);color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px}.sw{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px}.sw.ln{width:14px;height:3px;vertical-align:3px}.sw.dash{width:14px;height:0;border-top:2px dashed var(--ink2);vertical-align:3px}
+.fold>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::before{content:"";flex:none;width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+.fold[open]>summary::before{transform:rotate(45deg)}
+.fold.head>summary h2{margin:0}
+.fold.add{margin-top:10px}.fold.add>summary{color:var(--s1);font-size:.9rem;font-weight:500}
+.fold-b{margin-top:10px;display:flex;flex-direction:column;gap:10px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}.seg button{border-radius:99px;font-size:.8rem;padding:4px 10px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.banner{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;margin:10px 0 4px;background:color-mix(in srgb,var(--warn) 16%,var(--surface))}
+.banner .ic{margin-top:0}
+button.link{border:0;background:none;padding:0;color:var(--s1);text-decoration:underline;font-size:inherit}
+button.ghost{border-color:transparent;color:var(--s1);padding:4px 8px}
+tr.det td{background:var(--bg);white-space:normal}
+.detail{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+tr.tot td{font-weight:650;border-bottom:0}
+.card.clear{padding:6px 16px}
+.hl{padding:12px;border-radius:8px;background:var(--bg);border:1px solid var(--ring);margin-top:10px}.hl .l{font-size:.8rem;color:var(--ink2)}.hl .v{font-size:1.5rem;font-weight:650;font-variant-numeric:tabular-nums}
+.goal{padding:10px 0;border-bottom:1px solid var(--grid)}.goal .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.refresh{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.how ol{margin:4px 0 0;padding-left:18px}.how{margin-top:6px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--bg);padding:7px 14px;border-radius:99px;font-size:.85rem}
+@media (max-width:600px){
+  table.stack thead{display:none}
+  table.stack,table.stack tbody,table.stack tr{display:block;width:100%}
+  table.stack tr{padding:8px 0;border-bottom:1px solid var(--grid)}
+  table.stack td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;padding:3px 0;white-space:normal;text-align:right}
+  table.stack td.first{display:block;text-align:left;font-weight:600}
+  table.stack td[data-l]::before{content:attr(data-l);color:var(--ink2);font-size:.8rem;text-align:left}
+  table.stack td:empty,table.stack td.spk{display:none}
+  nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}nav a{white-space:nowrap}
+}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--grid);white-space:nowrap}
+th{font-weight:600;color:var(--ink2);font-size:.78rem;text-transform:uppercase;letter-spacing:.04em}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--grid)}
+.row:last-child{border-bottom:0}
+.row .t{flex:1;min-width:0}
+.row .t b{font-weight:600}
+.row .amt{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.ic{flex:none;width:18px;height:18px;margin-top:2px}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:minmax(90px,170px) 1fr auto;gap:10px;align-items:center;font-size:.86rem}
+.bar .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .track{height:10px;background:var(--grid);border-radius:5px;overflow:hidden}
+.bar .fill{height:100%;background:var(--s1);border-radius:0 4px 4px 0}
+.bar .val{font-variant-numeric:tabular-nums;color:var(--ink2)}
+svg text{fill:var(--ink2);font:11px var(--font)}
+.chart{width:100%;height:auto;display:block}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;border:1px solid var(--ring);font-size:.75rem;color:var(--ink2)}
+button,.btn{font:inherit;font-size:.88rem;padding:7px 12px;border-radius:8px;border:1px solid var(--axis);background:var(--surface);color:var(--ink);cursor:pointer}
+button.primary{background:var(--s1);border-color:var(--s1);color:#fff}
+button:disabled{opacity:.5;cursor:default}
+input,select,textarea{font:inherit;font-size:.9rem;padding:7px 9px;border-radius:8px;border:1px solid var(--axis);background:var(--surface);color:var(--ink);min-width:0;max-width:100%}
+form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.note{font-size:.82rem;color:var(--ink2)}
+.err{color:var(--ink);background:color-mix(in srgb,var(--crit) 14%,var(--surface));border:1px solid var(--crit);padding:8px 12px;border-radius:8px}
+.chat{display:flex;flex-direction:column;gap:10px}
+.msgs{display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow-y:auto;padding-right:4px}
+.m{padding:9px 12px;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.m.u{align-self:flex-end;background:var(--s1);color:#fff;max-width:85%}
+.m.a{align-self:flex-start;background:var(--bg);border:1px solid var(--ring);max-width:95%}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font-size:.82rem;padding:5px 10px;border-radius:99px}
+#tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);padding:5px 9px;border-radius:6px;font-size:.78rem;max-width:240px}
+@media (max-width:520px){.bar{grid-template-columns:100px 1fr auto}.kpi .v{font-size:1.35rem}}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cal>div{min-height:56px;border:1px solid var(--grid);border-radius:6px;padding:3px;font-size:.72rem;overflow:hidden}.cal>div.h{border:0;min-height:0;color:var(--ink2);text-align:center}
+a{color:var(--brandtx)}
+nav a[aria-current="page"]{border-color:var(--brand)}
+nav a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline-color:var(--brand)}
+button.primary{background:var(--brand);border-color:var(--brand);color:#1c1a19;font-weight:600}
+button.link,button.ghost,.fold.add>summary{color:var(--brandtx)}
+.m.u{background:var(--brand);color:#1c1a19}
+.brand{display:flex;align-items:center;gap:14px}.logo{height:54px;width:auto;border-radius:10px;display:block}
+.wrap>.top{align-items:center;padding:10px 12px;border-radius:12px;background:linear-gradient(90deg,var(--brandsoft),transparent 70%)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><img class="logo" src="data:image/png;base64,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" alt="Squeezed Orange"><div><h1 id="ttl" style="position:absolute;left:-9999px">Squeezed Orange</h1><p class="sub" id="sync">Waiting for data</p></div></div>
+      </div>
+  <nav id="nav" aria-label="Sections"></nav>
+  <div id="msg"></div>
+  <section id="p-overview" class="pane"></section>
+  <section id="p-spending" class="pane" hidden></section>
+  <section id="p-leaks" class="pane" hidden></section>
+  <section id="p-plan" class="pane" hidden></section>
+  <section id="p-review" class="pane" hidden></section>
+  <section id="p-ask" class="pane" hidden>
+    <div class="card chat">
+      <div><h2>Ask about your spending</h2>
+        <p class="note">Answers use your 12 months of category totals and the transactions the sync has read so far. Individual merchants exist only for synced mail.</p></div>
+      <div class="chips" id="chips"></div>
+      <div class="msgs" id="msgs" aria-live="polite"></div>
+      <form id="chatform"><textarea id="q" rows="2" placeholder="e.g. Where can I cut $500 a month?" style="flex:1;min-width:200px"></textarea>
+        <button class="primary" id="send" type="submit">Ask</button><button type="button" id="stop" hidden>Stop</button></form>
+      <p class="note" id="chatnote"></p>
+    </div>
+    <div id="plans"></div>
+  </section>
+</div>
+<p class="note" style="text-align:center;max-width:1040px;margin:16px auto 0">Not financial, tax or legal advice. Figures may be incomplete or wrong; check them against your statements. See the README for the full disclaimer. Questions: hello@maryamreza.com</p>
+<div id="tip" hidden></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+const TABS=[["overview","Overview"],["spending","Spending"],["leaks","Leaks & savings"],["plan","Budget & income"],["review","Review"],["ask","Ask"]];
+const DISCRETIONARY=["Restaurant","Dining","Delivery","Shopping","Entertainment","Clothes"];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=(n,d)=>{d=d||0;return(n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d})};
+const mlabel=ym=>new Date(+ym.slice(0,4),+ym.slice(5,7)-1,1).toLocaleString("en-US",{month:"short"})+" ’"+ym.slice(2,4);
+const mlong=ym=>new Date(+ym.slice(0,4),+ym.slice(5,7)-1,1).toLocaleString("en-US",{month:"long",year:"numeric"});
+const med=a=>{const b=a.slice().sort((x,y)=>x-y),n=b.length;return n?(n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2):0};
+const now=new Date(),NOW=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+
+let S={hist:null,settings:{income:{monthly:[],oneTime:[]},budgets:{},balances:[],buffer:0,payday:"",billsBefore:0,goals:[],plans:[],extraFixed:[],rules:[],funds:[],bills:[],lastBudgetPlan:null,name:"",onboardingDismissed:false,alerts:{over:true,warn:80,big:200,bigOn:true,browser:false}},sync:null,who:"",q:"",revMonth:"",calOff:0,rulesReady:false,months:{},tab:"overview",noDb:false,slow:false,err:"",open:{},txf:"",txOpen:null,txAll:false};
+let db=null,P="",sample=null;
+let BP={mode:"amount",val:"",goal:"",locks:{},res:null,busy:false,msg:"",tok:0};
+
+/* ---------- model ---------- */
+function steady(ser){
+  const cnt={};ser.forEach(v=>{if(v!=null&&v>0){const k=v.toFixed(2);cnt[k]=(cnt[k]||0)+1}});
+  let best=null;for(const k in cnt)if(best===null||cnt[k]>cnt[best])best=k;
+  return best!==null&&cnt[best]>=4?+best:null;
+}
+function model(who){who=who||"";
+  const h=S.hist;if(!h||!h.months||!h.cats)return null;
+  const months=h.months,cats=Object.keys(h.cats);
+  const totals=months.map((_,i)=>{let any=false,s=0;cats.forEach(c=>{const v=h.cats[c][i];if(v!=null){any=true;s+=v}});return any?s:null});
+  const valid=[];totals.forEach((t,i)=>{if(t!=null)valid.push(i)});
+  const lastI=valid[valid.length-1];
+  const typical=med(valid.map(i=>totals[i]));
+  const avg=valid.reduce((s,i)=>s+totals[i],0)/Math.max(1,valid.length);
+  const stats=cats.map(name=>{
+    const ser=h.cats[name],vals=valid.map(i=>ser[i]==null?0:ser[i]),total=vals.reduce((a,b)=>a+b,0);
+    return{name,ser,total,avg:total/vals.length,med:med(vals),last:ser[lastI]==null?0:ser[lastI],typical:steady(ser)};
+  });
+  const fixedNames=h.fixedCats||[],fixedStats=stats.filter(s=>fixedNames.indexOf(s.name)>=0),fixedNow=S.settings.fixedNow||{};
+  const fixedHist=fixedStats.reduce((a,s)=>a+(s.typical||s.last),0);
+  const fixedAmt=(name,key)=>{const s=fixedStats.find(x=>x.name===name),c=fixedNow[name],base=s?(s.typical||s.last):0;return c&&typeof c==="object"&&c.from&&key>=c.from?c.amount:base};
+  const extraFor=key=>(S.settings.extraFixed||[]).filter(x=>(!x.from||x.from<=key)&&(!x.to||x.to>=key)).reduce((a,x)=>a+x.amount,0);
+  const fixedFor=key=>fixedStats.reduce((a,s)=>a+fixedAmt(s.name,key),0)+extraFor(key);
+  const fixedMonthly=fixedFor(NOW);
+  const spikes=[];
+  stats.forEach(s=>valid.forEach(i=>{const v=s.ser[i];if(v!=null&&v>=300&&v>3*Math.max(s.med,50))spikes.push({cat:s.name,month:months[i],v,typ:s.med})}));
+  spikes.sort((a,b)=>b.v-a.v);
+  const recurring=stats.filter(s=>s.typical).map(s=>({name:s.name,typical:s.typical,last:s.last,changed:s.last>0&&Math.abs(s.last-s.typical)/s.typical>.03}));
+  const cur=(S.months[NOW]&&S.months[NOW].txns)||[];
+  const allTx=[].concat.apply([],Object.values(S.months).map(m=>m.txns||[])).filter(t=>!who||t.owner===who);
+  return{months,cats,totals,valid,lastI,typical,avg,stats,spikes,recurring,cur,fixedNames,fixedMonthly,fixedHist,fixedStats,fixedNow,fixedFor,fixedAmt,curSpent:cur.reduce((s,t)=>s+t.amount,0),curTotal:cur.reduce((s,t)=>s+t.amount,0)+fixedMonthly,
+    allTx,doubles:allTx.filter(t=>(t.flags||[]).indexOf("possible_double_charge")>=0),
+    uncat:allTx.filter(t=>t.category==="Uncategorized")};
+}
+function incomeFor(key){
+  const inc=S.settings.income||{};
+  const mo=(inc.monthly||[]).filter(x=>(!x.from||x.from<=key)&&(!x.to||x.to>=key)).reduce((s,x)=>s+x.amount,0);
+  const one=(inc.oneTime||[]).reduce((s,x)=>{const n=Math.max(1,x.months|0),k0=(x.date||"").slice(0,7);if(!k0)return s;const d=(+key.slice(0,4)-+k0.slice(0,4))*12+(+key.slice(5,7)-+k0.slice(5,7));return d>=0&&d<n?s+x.amount/n:s},0);
+  return{mo,one,total:mo+one};
+}
+const budgetFor=(m,st)=>S.settings.budgets&&S.settings.budgets[st.name]!=null?S.settings.budgets[st.name]:Math.round(st.med/10)*10;
+
+/* ---------- charts ---------- */
+function niceMax(v){const p=Math.pow(10,Math.floor(Math.log10(v||1))),n=v/p;return(n<=1?1:n<=2?2:n<=5?5:10)*p}
+function monthChart(m){
+  const keys=m.months.concat([NOW]),vals=m.totals.concat([m.curTotal>0?m.curTotal:null]);
+  const W=720,H=250,L=46,R=10,T=14,B=30,n=keys.length,slot=(W-L-R)/n,bw=Math.min(34,slot*.6);
+  const incs=keys.map(k=>incomeFor(k).total),top=niceMax(Math.max.apply(null,vals.filter(v=>v!=null).concat(incs))),y=v=>T+(H-T-B)*(1-v/top);
+  let g="";
+  for(let i=0;i<=4;i++){const v=top*i/4;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="${i?"var(--grid)":"var(--axis)"}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${v>=1000?"$"+v/1000+"k":"$"+v}</text>`}
+  let b="";
+  keys.forEach((k,i)=>{
+    const cx=L+slot*i+slot/2,v=vals[i],cur=k===NOW;
+    b+=`<text x="${cx}" y="${H-10}" text-anchor="middle">${esc(mlabel(k).replace(" ’"," ’"))}</text>`;
+    if(v==null){b+=`<text x="${cx}" y="${y(0)-6}" text-anchor="middle" style="fill:var(--muted)">no data</text>`;return}
+    const h=Math.max(2,y(0)-y(v)),r=Math.min(4,bw/2);
+    b+=`<path d="M${cx-bw/2},${y(0)}V${y(v)+r}Q${cx-bw/2},${y(v)} ${cx-bw/2+r},${y(v)}H${cx+bw/2-r}Q${cx+bw/2},${y(v)} ${cx+bw/2},${y(v)+r}V${y(0)}Z" fill="var(--s1)" fill-opacity="${cur?.45:1}" data-tip="${esc(mlong(k))}${cur?" so far":""}: ${fmt(v)}"/>`;
+    b+=`<rect x="${cx-slot/2}" y="${T}" width="${slot}" height="${H-T-B}" fill="transparent" data-tip="${esc(mlong(k))}${cur?" so far (alerts only)":""}: ${fmt(v)}"/>`;
+  });
+  const ym=y(m.typical);
+  let il="";
+  if(incs.some(v=>v>0)){
+    const pts=incs.map((v,i)=>[L+slot*i+slot/2,y(v),v]);
+    il=`<path d="${pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1)).join("")}" fill="none" stroke="var(--s2)" stroke-width="2.5" stroke-linejoin="round"/>`+
+      pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="2" data-tip="${esc(mlong(keys[i]))} income: ${fmt(p[2])}"/>`).join("")+
+      `<text x="${pts[pts.length-1][0]}" y="${pts[pts.length-1][1]-9}" text-anchor="end" style="fill:var(--ink)">income ${fmt(pts[pts.length-1][2])}/mo</text>`;
+  }
+  return`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly spending against income, typical spending ${fmt(m.typical)}">${g}${b}${il}<line x1="${L}" x2="${W-R}" y1="${ym}" y2="${ym}" stroke="var(--ink2)" stroke-dasharray="4 4"/><text x="${W-R}" y="${ym-5}" text-anchor="end">typical ${fmt(m.typical)}</text></svg>`;
+}
+function spark(ser){
+  const W=90,H=22,vs=ser.filter(v=>v!=null),mx=Math.max.apply(null,vs.concat([1])),mn=Math.min.apply(null,vs.concat([0]));
+  const x=i=>2+(W-4)*i/(ser.length-1),y=v=>H-3-(H-6)*((v-mn)/((mx-mn)||1));
+  let d="",pen=false,last=null;
+  ser.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1);pen=true;last=[x(i),y(v)]});
+  return`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--s1)" stroke-width="2" stroke-linejoin="round"/>${last?`<circle cx="${last[0]}" cy="${last[1]}" r="3" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>`:""}</svg>`;
+}
+const iconWarn=`<svg class="ic" viewBox="0 0 18 18" aria-label="Attention" role="img"><path d="M9 2 17 16H1Z" fill="var(--warn)"/><path d="M9 7v4M9 13v1" stroke="#0b0b0b" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+const iconInfo=`<svg class="ic" viewBox="0 0 18 18" aria-label="Info" role="img"><circle cx="9" cy="9" r="7" fill="none" stroke="var(--muted)" stroke-width="2"/><path d="M9 8v5M9 5.5v1" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+const iconCrit=`<svg class="ic" viewBox="0 0 18 18" aria-label="Problem" role="img"><circle cx="9" cy="9" r="8" fill="var(--crit)"/><path d="M6 6l6 6M12 6l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+
+/* ---------- views ---------- */
+function empty(){return`<div class="card"><h2>${S.noDb?"Open this page inside Claude":"No spending history yet"}</h2><p class="note">${S.noDb?"The data store is only available when you are signed in to Claude.":"This dashboard shows trends against your past months. You can start without any history and let it build up from your alerts, or ask Claude in <code>/finance-setup</code> to load 12 months of category totals from your statements."}</p>${S.noDb?"":'<p><button class="primary" type="button" data-startfresh>Start without history</button></p>'}</div>`}
+const iconOk=`<svg class="ic" viewBox="0 0 18 18" aria-label="OK" role="img"><circle cx="9" cy="9" r="8" fill="var(--good)"/><path d="M5.5 9.2l2.3 2.3 4.7-4.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const LV={crit:iconCrit,warn:iconWarn,info:iconInfo};
+const row=(i,t,a)=>`<div class="row">${i}<div class="t">${t}</div>${a?`<div class="amt">${a}</div>`:""}</div>`;
+const fold=(k,label,body,force,cls)=>`<details class="fold${cls?" "+cls:""}" data-k="${k}"${(S.open[k]!=null?S.open[k]:force)?" open":""}><summary>${label}</summary><div class="fold-b">${body}</div></details>`;
+const daysIn=()=>new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+const sortTx=a=>a.slice().sort((x,y)=>y.date.localeCompare(x.date));
+const meter=(pct,mark,cls,label)=>`<div class="meter" role="img" aria-label="${esc(label)}"><span class="fill ${cls}" style="width:${Math.min(100,Math.max(0,pct)).toFixed(1)}%"></span>${mark!=null?`<span class="mark" style="left:${mark.toFixed(1)}%"></span>`:""}</div>`;
+const fixedLabels=m=>m.fixedNames.concat((S.settings.extraFixed||[]).filter(x=>(!x.from||x.from<=NOW)&&(!x.to||x.to>=NOW)).map(x=>x.label));
+function monthNow(m){const c={};m.cur.forEach(t=>{parts(t).forEach(p=>{c[p.category]=(c[p.category]||0)+p.amount})});m.fixedStats.forEach(s=>{c[s.name]=(c[s.name]||0)+m.fixedAmt(s.name,NOW)});return c}
+/* everything that needs attention, with the tab it lives on; feeds "Worth a look" and the tab counts */
+function alerts(m){
+  const f=facts(m),a=[],inc=incomeFor(NOW),variable=m.typical-m.fixedHist;
+  if(inc.total&&inc.total<m.fixedMonthly+variable)a.push({l:"crit",tab:"plan",t:`<b>Income is below typical spending.</b> ${fmt(inc.total)} coming in against about ${fmt(m.fixedMonthly)} fixed plus ${fmt(variable)} everyday: short by about ${fmt(m.fixedMonthly+variable-inc.total)} a month. If a fixed cost such as income tax has changed, update it on <a href="#plan">Budget &amp; income</a>.`});
+  m.doubles.forEach(t=>a.push({l:"crit",tab:"leaks",t:`<b>Possible double charge</b> at ${esc(t.merchant)}, ${fmt(t.amount,2)} on ${esc(t.date)}`}));
+  f.priceChanges.forEach(r=>a.push({l:"warn",tab:"leaks",t:`<b>${esc(r.merchant)}</b> price changed from ${fmt(r.was,2)} to ${fmt(r.now,2)}`}));
+  m.recurring.filter(r=>r.changed&&m.fixedNames.indexOf(r.name)<0).forEach(r=>a.push({l:"warn",tab:"leaks",t:`<b>${esc(r.name)}</b> is usually ${fmt(r.typical,2)} a month; last month it was ${fmt(r.last,2)}`}));
+  f.refunds.pending.forEach(r=>a.push({l:"warn",tab:"leaks",t:`Refund for <b>${esc(r.merchant)}</b> not seen yet (${r.daysWaiting} days)`}));
+  if(m.uncat.length)a.push({l:"warn",tab:"spending",n:m.uncat.length,t:`<b>${m.uncat.length} transaction${m.uncat.length>1?"s":""}</b> need${m.uncat.length>1?"":"s"} a category. <a href="#spending" data-txfilter="uncat">Show them</a>`});
+  const al=S.settings.alerts||{};
+  if(al.over!==false){const cu=monthNow(m);m.stats.forEach(s=>{if(m.fixedNames.indexOf(s.name)>=0)return;const b=budgetFor(m,s),n=cu[s.name]||0;if(!(b>0))return;
+    if(n>b)a.push({l:"crit",tab:"spending",t:`<b>${esc(s.name)}</b> is over budget: ${fmt(n)} of ${fmt(b)}`});
+    else if(n>=b*(al.warn||80)/100)a.push({l:"warn",tab:"spending",t:`<b>${esc(s.name)}</b> has used ${Math.round(n/b*100)}% of its ${fmt(b)} budget`})})}
+  if(al.bigOn!==false&&al.big>0){const lim=addDays(todayISO(),-7);m.allTx.filter(t=>t.amount>=al.big&&t.date>=lim).forEach(t=>a.push({l:"warn",tab:"spending",t:`<b>Large purchase:</b> ${esc(t.merchant)}, ${fmt(t.amount,2)} on ${esc(t.date)}`}))}
+  return a;
+}
+function badges(m){
+  if(!m)return{};const a=alerts(m),o={};
+  a.forEach(x=>{const b=o[x.tab]=o[x.tab]||{n:0,l:"warn"};b.n+=x.n||1;if(x.l==="crit")b.l="crit"});
+  return o;
+}
+
+/* ---------- Overview ---------- */
+function viewOverview(m){
+  if(!m)return startCard(null)+empty();
+  const inc=incomeFor(NOW),left=inc.total-m.curTotal,day=now.getDate(),dim=daysIn(),mark=day/dim*100;
+  const evBud=m.stats.filter(s=>m.fixedNames.indexOf(s.name)<0).reduce((a,s)=>a+budgetFor(m,s),0),evSpent=m.curSpent,pct=evBud?evSpent/evBud*100:0;
+  const st=pct>100?"crit":pct>mark+10?"warn":"good",pace=Math.round(evBud*day/dim);
+  const msg=st==="crit"?`Over the everyday budget by ${fmt(evSpent-evBud)}.`:st==="warn"?`Ahead of pace. By day ${day} the budget allows about ${fmt(pace)}.`:`On track. By day ${day} the budget allows about ${fmt(pace)}.`;
+  const al=alerts(m),fx=fixedLabels(m);
+  const paceCard=evBud?`<div class="card"><div class="top"><h2>Everyday spending this month</h2><span class="note">Day ${day} of ${dim}</span></div><p class="big"><b>${fmt(evSpent)}</b> <span class="note">of ${fmt(evBud)} budget</span></p>${meter(pct,mark,st,`${Math.round(pct)}% of the everyday budget used, ${Math.round(mark)}% of the month gone`)}<p class="note"><span class="dot ${st}"></span>${msg} The line marks today. Fixed costs are not included. Set category budgets on <a href="#spending">Spending</a>.</p></div>`:"";
+  return startCard(m)+`<div class="grid">
+    <div class="card kpi"><div class="l">Left this month</div><div class="v ${inc.total?(left>=0?"pos":"neg"):""}">${inc.total?fmt(left):"Not set"}</div><div class="n">${inc.total?`of ${fmt(inc.total)} income, after fixed costs and spending so far`:'<a href="#plan">Add income</a> to see this'}</div></div>
+    <div class="card kpi"><div class="l">Spent in ${esc(mlong(NOW))}</div><div class="v">${fmt(m.curTotal)}</div><div class="n">${fmt(evSpent)} everyday + ${fmt(m.fixedMonthly)} fixed. A typical month is ${fmt(m.typical)}.</div></div>
+    <div class="card kpi"><div class="l">Fixed costs per month</div><div class="v">${fmt(m.fixedMonthly)}</div><div class="n">${fx.length?esc(fx.join(", ")):"None set"}</div></div>
+  </div>
+  ${paceCard}
+  <div class="grid two">
+    <div class="card"><div class="top"><h2>Worth a look</h2>${al.length?`<a href="#leaks">Leaks &amp; savings</a>`:""}</div>${al.length?al.slice(0,6).map(x=>row(LV[x.l],x.t)).join("")+(al.length>6?`<p class="note">${al.length-6} more on the tabs marked with a count.</p>`:""):row(iconOk,"Nothing needs attention.")}</div>
+    ${recentCard(m)}
+  </div>
+  <div class="card"><h2>Spending and income by month</h2><p class="sub legend"><span><span class="sw" style="background:var(--s1)"></span> Spending, including fixed costs</span><span><span class="sw ln" style="background:var(--s2)"></span> Income, take-home after tax</span><span><span class="sw dash"></span> Typical spending month</span></p><div class="scroll">${monthChart(m)}</div><p class="note">Income by period: ${(S.settings.income.monthly||[]).map(x=>fmt(x.amount)+" a month, "+mlabel(x.from)+(x.to?" to "+mlabel(x.to):" onward")).join("; ")||"not set"}. Edit on <a href="#plan">Budget &amp; income</a>.</p></div>`;
+}
+function recentCard(m){
+  const tx=sortTx(m.allTx).slice(0,5);
+  return`<div class="card"><div class="top"><h2>Latest transactions</h2><a href="#spending">See all</a></div>${tx.length?tx.map(t=>row("",`<b>${esc(t.merchant)}</b>${t.pending?' <span class="pill">pending</span>':""}<div class="note">${esc(t.date)}${cardLabel(t)?" · "+esc(cardLabel(t)):""}</div>`,`<span class="${t.amount<0?"pos":""}">${fmt(t.amount,2)}</span>`)).join(""):'<p class="note">No transactions yet.</p>'}
+  <p class="note" id="nextsync" style="margin-top:10px">${esc(nextSyncText())}</p></div>`;
+}
+
+/* ---------- Spending ---------- */
+function viewSpending(m,mw){
+  if(!m)return empty();
+  return catCard(m)+merchCard(mw)+txCard(mw)+rulesCard(m)+importCard();
+}
+function catCard(m){
+  const L=m.months[m.lastI],cur=monthNow(m),day=now.getDate();let tb=0;
+  const rows=m.stats.slice().sort((a,b)=>b.avg-a.avg).map(s=>{
+    const b=budgetFor(m,s),n=cur[s.name]||0,fx=m.fixedNames.indexOf(s.name)>=0,p=b?n/b*100:(n>0?100:0),cls=fx?"mute":n>b?"crit":p>80?"warn":"good",hot=!fx&&n>1.25*s.avg&&n-s.avg>100;tb+=b;
+    return`<tr><td class="first">${esc(s.name)}${fx?' <span class="pill">fixed</span>':""}${hot?' <span class="pill warn">above average</span>':""}</td><td class="num" data-l="This month">${fmt(n)}<span class="mini"><span class="${cls}" style="width:${Math.min(100,p).toFixed(1)}%"></span></span></td><td class="num" data-l="${esc(mlabel(L))}">${fmt(s.last)}</td><td class="num" data-l="Average">${fmt(s.avg)}</td><td class="spk" data-l="12 months">${spark(s.ser)}</td><td class="num" data-l="Budget"><input type="number" min="0" step="10" value="${b}" data-budget="${esc(s.name)}" style="width:92px" aria-label="Budget for ${esc(s.name)}"></td><td class="num" data-l="Left">${n>b?`<span class="neg">over ${fmt(n-b)}</span>`:fmt(b-n)}</td></tr>`}).join("");
+  const tot=`<tr class="tot"><td class="first">Total</td><td class="num" data-l="This month">${fmt(m.curTotal)}</td><td class="num" data-l="${esc(mlabel(L))}">${fmt(m.totals[m.lastI])}</td><td class="num" data-l="Average">${fmt(m.avg)}</td><td></td><td class="num" data-l="Budget">${fmt(tb)}</td><td class="num" data-l="Left">${m.curTotal>tb?`<span class="neg">over ${fmt(m.curTotal-tb)}</span>`:fmt(tb-m.curTotal)}</td></tr>`;
+  return`<div class="card"><h2>Categories</h2><p class="sub">${esc(mlong(NOW))} so far (day ${day} of ${daysIn()}) against ${esc(mlong(L))} and the ${m.valid.length}-month average. Fixed costs count as paid. The bar shows how much of each budget is used. Change a budget and it saves.</p><div class="scroll"><table class="stack"><thead><tr><th>Category</th><th class="num">This month</th><th class="num">${esc(mlabel(L))}</th><th class="num">Average</th><th>12 months</th><th class="num">Budget</th><th class="num">Left</th></tr></thead><tbody>${rows}${tot}</tbody></table></div></div>`;
+}
+function txCard(m){
+  let tx=sortTx(m.allTx);
+  const nU=m.uncat.length,nR=tx.filter(t=>t.expectRefund).length;
+  if(S.txf==="uncat")tx=tx.filter(t=>t.category==="Uncategorized");else if(S.txf==="refund")tx=tx.filter(t=>t.expectRefund);
+  if(S.q.trim()){const q=S.q.trim().toLowerCase();tx=tx.filter(t=>String(t.merchant).toLowerCase().indexOf(q)>=0)}
+  const total=tx.length;if(!S.txAll)tx=tx.slice(0,40);
+  const opts=m.cats.concat(["Uncategorized"]);
+  const seg=`<div class="seg" role="group" aria-label="Show">${[["","All"],["uncat","Needs a category"+(nU?" ("+nU+")":"")],["refund","Refund due"+(nR?" ("+nR+")":"")]].map(x=>`<button type="button" data-txfilter="${x[0]}" aria-pressed="${S.txf===x[0]}">${esc(x[1])}</button>`).join("")}</div>`;
+  const pills=t=>(t.tags||[]).map(g=>` <span class="pill">${esc(g)}</span>`).join("")+(t.worth?` <span class="pill">${t.worth==="worth"?"worth it":"would skip"}</span>`:"")+(t.expectRefund?' <span class="pill warn">refund due</span>':"")+((t.flags||[]).length?` <span class="pill warn">${esc(t.flags.join(", ").replace(/_/g," "))}</span>`:"")+(t.splits&&t.splits.length?' <span class="pill">split</span>':"")+(t.pending?' <span class="pill">pending</span>':"");
+  const body=tx.map(t=>{const id=esc(tid(t)),mk=esc(t.date.slice(0,7)),open=S.txOpen===tid(t);
+    return`<tr><td class="first">${esc(t.merchant)}${pills(t)}</td><td data-l="Date">${esc(t.date)}</td><td data-l="Card">${esc(cardLabel(t))}</td><td class="num" data-l="Amount"><span class="${t.amount<0?"pos":""}">${fmt(t.amount,2)}</span></td><td data-l="Category"><select data-cat="${id}" data-month="${mk}" aria-label="Category for ${esc(t.merchant)}">${opts.map(c=>`<option${c===t.category?" selected":""}>${esc(c)}</option>`).join("")}</select></td><td><button type="button" class="ghost" data-txopen="${id}" aria-expanded="${open}">${open?"Close":"More"}</button></td></tr>`+
+    (open?`<tr class="det"><td colspan="6"><div class="detail"><label class="note">Tags <input data-txf="tags" data-id="${id}" data-month="${mk}" value="${esc((t.tags||[]).join(", "))}" placeholder="trip, project" style="width:160px"></label><label class="note">Worth it? <select data-txf="worth" data-id="${id}" data-month="${mk}"><option value="">Not marked</option><option value="worth"${t.worth==="worth"?" selected":""}>Worth it</option><option value="skip"${t.worth==="skip"?" selected":""}>Would skip</option></select></label><label class="note"><input type="checkbox" data-txf="expectRefund" data-id="${id}" data-month="${mk}"${t.expectRefund?" checked":""}> Refund due</label>${t.owner?`<span class="note">Paid by ${esc(t.owner)}</span>`:""}<button type="button" data-mkrule="${id}">Always categorize this merchant as ${esc(t.category)}</button>${t.splits&&t.splits.length?`<span class="note">Split: ${t.splits.map(p=>esc(p.category)+" "+fmt(p.amount,2)).join(", ")}</span><button type="button" data-unsplit="${id}" data-month="${mk}">Remove split</button>`:`<input type="number" min="0" step="0.01" data-spamt placeholder="Split off $" style="width:110px" aria-label="Amount to split off"><select data-spcat aria-label="Category for the split part">${opts.map(c=>`<option>${esc(c)}</option>`).join("")}</select><button type="button" data-split="${id}" data-month="${mk}">Split</button>`}</div></td></tr>`:"")}).join("");
+  return`<div class="card"><div class="top"><h2>Transactions</h2>${seg}</div>${whoSeg()}<div class="detail" style="margin:8px 0"><input id="mq" type="search" value="${esc(S.q)}" placeholder="Search merchants" aria-label="Search merchants" style="flex:1;min-width:200px"></div><p class="sub">Read from your finance inbox and imports. Change a category and the sync keeps it. Use More for tags, splits, rules and refunds.${S.who?" Showing "+esc(S.who)+"'s purchases only; the category table above includes everyone.":""}</p>
+  ${nU&&S.txf!=="uncat"?`<p class="banner">${iconWarn}<span>${nU} transaction${nU>1?"s":""} need${nU>1?"":"s"} a category. <button type="button" class="link" data-txfilter="uncat">Show them</button></span></p>`:""}
+  ${tx.length?`<div class="scroll"><table class="stack"><thead><tr><th>Merchant</th><th>Date</th><th>Card</th><th class="num">Amount</th><th>Category</th><th></th></tr></thead><tbody>${body}</tbody></table></div>${total>tx.length?`<p><button type="button" data-txmore>Show all ${total}</button></p>`:""}`:`<p class="note">${S.txf?"Nothing here.":"No transactions synced yet. The sync runs every 6 hours."}</p>`}</div>`;
+}
+function importCard(){
+  return`<div class="card">${fold("imp","<h2>Import past transactions (CSV)</h2>",`<p class="sub">Sign in to your bank or card website, open the account, go to Transactions (or Activity), choose Download or Export, pick CSV and the last 12 months, then upload the file here. Repeat for each account or card. Uploading the same file twice is safe.</p><form id="f-imp"><input type="file" id="impfile" accept=".csv,text/csv"></form><div>${impPreview()}</div>`,!!IMP||!!S.impMsg,"head")}<p class="note" style="margin:4px 0 0">Optional. Adds up to 12 months of history so trends and Ask have more to work with.</p></div>`;
+}
+
+/* ---------- Leaks & savings ---------- */
+function viewLeaks(m){
+  if(!m)return empty();
+  const f=facts(m),clear=[],out=[];
+  const dbl=m.doubles.map(t=>row(iconCrit,`<b>${esc(t.merchant)}</b> charged ${fmt(t.amount,2)} more than once within 3 days (latest ${esc(t.date)}, card ...${esc(t.card)}). Check with the bank if you did not buy it twice.`,fmt(t.amount,2))).join("");
+  if(dbl)out.push(`<div class="card"><h2>Double charges</h2>${dbl}</div>`);else clear.push("no double charges");
+  const pc=f.priceChanges.map(r=>row(iconWarn,`<b>${esc(r.merchant)}</b> was ${fmt(r.was,2)}, now ${fmt(r.now,2)} (${esc(r.date)})`,(r.now>r.was?"+":"")+fmt(r.now-r.was,2))).join("");
+  const chg=m.recurring.filter(r=>r.changed&&m.fixedNames.indexOf(r.name)<0).map(r=>row(iconWarn,`<b>${esc(r.name)}</b> is usually ${fmt(r.typical,2)} a month; last month it was <b>${fmt(r.last,2)}</b>. Check for a price rise or an extra plan.`,fmt(r.typical*12)+"/yr")).join("");
+  const ren=f.upcomingRenewals.map(r=>row(iconInfo,`<b>${esc(r.merchant)}</b> ${r.cadence}, expected ${esc(r.next)}`,fmt(r.amount,2))).join("");
+  const steady=m.recurring.filter(r=>!r.changed&&m.fixedNames.indexOf(r.name)<0).map(r=>row(iconInfo,`<b>${esc(r.name)}</b> ${fmt(r.typical,2)} a month`,fmt(r.typical*12)+"/yr")).join("");
+  if(pc||chg||ren||steady)out.push(`<div class="card"><h2>Subscriptions and repeating charges</h2><p class="sub">Only charges that repeat with a near-identical amount. Variable merchants such as online marketplaces are not compared.</p>${pc||chg?`<h3>Changed</h3>${pc}${chg}`:""}${ren?`<h3>Coming up</h3>${ren}`:""}${steady?`<h3>Steady</h3>${steady}`:""}</div>`);else clear.push("no subscription price changes");
+  const rf=f.refunds.pending.map(r=>row(iconWarn,`Refund for <b>${esc(r.merchant)}</b> (${esc(r.date)}) not seen yet, waiting ${r.daysWaiting} days`,fmt(r.amount,2))).join("")+f.refunds.received.map(r=>row(iconOk,`Refund received for <b>${esc(r.merchant)}</b>${r.partial?" (partial: "+fmt(r.refunded,2)+" of "+fmt(r.charged,2)+")":""}`,fmt(r.refunded,2))).join("");
+  if(rf)out.push(`<div class="card"><h2>Refunds</h2>${rf}<p class="note">To track one, open a transaction's More on <a href="#spending">Spending</a> and tick Refund due.</p></div>`);else clear.push('no refunds being tracked (tick Refund due under a transaction\'s More on <a href="#spending">Spending</a>)');
+  const irc=new Set(f.irregular.map(r=>r.category));
+  const ir=f.irregular.map(r=>row(iconInfo,`<b>${esc(r.category)}</b> hit ${r.months.map(x=>fmt(x.amount)+" in "+esc(mlabel(x.month))).join(", ")}. Likely again around ${esc(r.expectAgain.map(mlabel).join(", "))}.`,"")).join("")+
+    m.spikes.filter(s=>!irc.has(s.cat)).slice(0,6).map(s=>row(iconInfo,`<b>${esc(s.cat)}</b> one-off in ${esc(mlabel(s.month))}, against a typical ${fmt(s.typ)}`,fmt(s.v))).join("");
+  if(ir)out.push(`<div class="card"><h2>Irregular and one-off expenses</h2><p class="sub">Big amounts that do not come every month, from your 12-month history. Set money aside for the ones likely to repeat.</p>${ir}</div>`);else clear.push("no irregular expenses");
+  const disc=DISCRETIONARY.map(n=>m.stats.find(s=>s.name===n)).filter(Boolean).sort((a,b)=>b.avg-a.avg);
+  const trav=m.stats.find(s=>s.name==="Travel");
+  const sav=disc.map(s=>row(iconInfo,`Trim <b>${esc(s.name)}</b> by 20% (now about ${fmt(s.avg)} a month)`,"saves "+fmt(s.avg*.2*12)+"/yr")).join("")+(trav?row(iconInfo,`<b>Travel</b> swings widely (${fmt(Math.min.apply(null,m.valid.map(i=>trav.ser[i]||0)))} to ${fmt(Math.max.apply(null,m.valid.map(i=>trav.ser[i]||0)))} a month). Setting aside ${fmt(trav.avg)} a month would smooth it out.`,fmt(trav.avg)+"/mo"):"");
+  if(sav)out.push(`<div class="card"><h2>Savings ideas</h2>${sav}<p class="note">For a plan built around your own habits, use <a href="#ask">Ask</a>.</p></div>`);
+  return whoSeg()+(clear.length?`<div class="card clear">${row(iconOk,"<b>Checked and clear:</b> "+clear.join("; ")+".")}</div>`:"")+out.join("")+calCard(m);
+}
+
+/* ---------- Budget & income ---------- */
+function viewPlan(m){
+  return nameCard()+incomeCard()+fixedCard(m)+budgetPlanCard(m)+fundsCard(m)+alertsCard()+cashCard(m)+goalsCard()+`<p class="note">Category budgets are set on the <a href="#spending">Spending</a> tab.</p>`;
+}
+function incomeCard(){
+  const inc=S.settings.income||{monthly:[],oneTime:[]},cur=incomeFor(NOW);
+  const list=(arr,kind)=>arr.length?arr.map(x=>`<div class="row"><div class="t"><b>${esc(x.label||"Income")}</b> <span class="note">${kind==="m"?"monthly, from "+esc(x.from||"start")+(x.to?" to "+esc(x.to):", ongoing"):esc(x.date)+(x.months>1?", spread over "+x.months+" months":"")}</span></div><div class="amt">${fmt(x.amount)}</div><button data-del="${kind}:${esc(x.id)}" aria-label="Remove ${esc(x.label)}">Remove</button></div>`).join(""):'<p class="note">None yet.</p>';
+  return`<div class="card"><h2>Income</h2><p class="sub">This month: ${cur.total?fmt(cur.total):"not set"}. Use take-home pay, after tax.</p><h3>Monthly</h3>${list(inc.monthly||[],"m")}<h3>One-time</h3>${list(inc.oneTime||[],"o")}
+  ${fold("inc","Add income",`<form id="f-mo"><input name="label" placeholder="Label (e.g. Salary)" required><input name="amount" type="number" min="0" step="0.01" placeholder="Amount" required style="width:120px"><label class="note">From <input name="from" type="month" value="${NOW}"></label><label class="note">Until (optional) <input name="to" type="month"></label><button class="primary">Add monthly</button></form><form id="f-one"><input name="label" placeholder="Label (e.g. Tax refund)" required><input name="amount" type="number" min="0" step="0.01" placeholder="Amount" required style="width:120px"><input name="date" type="date" required value="${now.toISOString().slice(0,10)}" aria-label="Date"><label class="note">Budget it over how many months? <input name="months" type="number" min="1" max="60" step="1" value="1" style="width:80px"></label><button class="primary">Add one-time</button><span class="note" id="onePrev" role="status" style="flex-basis:100%"></span></form>`,!(inc.monthly||[]).length,"add")}</div>`;
+}
+function fixedCard(m){
+  const xs=S.settings.extraFixed||[];
+  const det=m?m.fixedStats.map(s=>{const c=m.fixedNow[s.name],has=c&&typeof c==="object",v=has?c.amount:(s.typical||s.last),f=has?c.from:"";return`<div class="row" data-frow="${esc(s.name)}"><div class="t"><b>${esc(s.name)}</b> <span class="note">was ${fmt(s.typical||s.last)}</span></div><input type="number" min="0" step="10" value="${v}" data-fixed="${esc(s.name)}" style="width:110px" aria-label="New monthly amount for ${esc(s.name)}"><label class="note">from <input type="month" value="${esc(f)}" data-fixedfrom="${esc(s.name)}" aria-label="Month the new amount starts for ${esc(s.name)}"></label></div>`}).join(""):"";
+  const ext=xs.map(x=>`<div class="row"><div class="t"><b>${esc(x.label)}</b> <span class="note">added by you, from ${esc(x.from||"start")}${x.to?" to "+esc(x.to):", ongoing"}</span></div><div class="amt">${fmt(x.amount)}</div><button data-rm="x:${esc(x.id)}" aria-label="Remove ${esc(x.label)}">Remove</button></div>`).join("");
+  const total=m?m.fixedMonthly:xs.filter(x=>(!x.from||x.from<=NOW)&&(!x.to||x.to>=NOW)).reduce((a,x)=>a+x.amount,0);
+  return`<div class="card"><h2>Fixed monthly costs</h2><p class="sub">Each amount counts in every month. When one changes (for example income tax after your income dropped), enter the new amount and the month it starts; earlier months keep the old amount. Total this month: ${fmt(total)}.</p>${det}${ext}${det||ext?"":'<p class="note">None yet.</p>'}${det?'<p class="note">Leave "from" empty to keep the old amount.</p>':""}
+  ${fold("fix","Add a cost that never shows up in alerts (rent, childcare, insurance, a loan)",`<form id="f-fixed"><input name="label" placeholder="Label (e.g. Rent)" required><input name="amount" type="number" min="0" step="0.01" placeholder="Per month" required style="width:120px"><label class="note">From <input name="from" type="month" value="${NOW}"></label><label class="note">Until (optional) <input name="to" type="month"></label><button class="primary">Add fixed cost</button></form>`,false,"add")}</div>`;
+}
+function cashCard(m){
+  const st=S.settings,bals=st.balances||[],f=m?facts(m).cashFlow:null,inc=incomeFor(NOW);
+  let proj="";
+  if(m&&inc.total){const variable=m.typical-m.fixedHist;let cum=0;
+    proj=`<h3>Next 6 months, projected</h3><p class="note">Income minus fixed costs minus a typical month of everyday spending (${fmt(variable)}). Assumes your current income continues.</p><div class="scroll"><table class="stack"><thead><tr><th>Month</th><th class="num">Income</th><th class="num">Fixed</th><th class="num">Everyday</th><th class="num">Net</th><th class="num">Running total</th></tr></thead><tbody>${[0,1,2,3,4,5].map(i=>{const d=new Date(now.getFullYear(),now.getMonth()+i,1),k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),i2=incomeFor(k).total,fx=m.fixedFor(k),net=i2-fx-variable;cum+=net;
+      return`<tr><td class="first">${esc(mlong(k))}</td><td class="num" data-l="Income">${fmt(i2)}</td><td class="num" data-l="Fixed">${fmt(fx)}</td><td class="num" data-l="Everyday">${fmt(variable)}</td><td class="num" data-l="Net"><span class="${net<0?"neg":"pos"}">${fmt(net)}</span></td><td class="num" data-l="Running total"><span class="${cum<0?"neg":""}">${fmt(cum)}</span></td></tr>`}).join("")}</tbody></table></div>`}
+  const safe=f&&f.safeToSpend!=null?`<div class="hl"><div class="l">Safe to spend until payday</div><div class="v ${f.safeToSpend<0?"neg":"pos"}">${fmt(f.safeToSpend)}</div><div class="note">Balance ${fmt(f.total)} minus buffer ${fmt(f.buffer)}, bills ${fmt(f.billsBeforePayday)} and typical everyday spending of ${fmt(f.expectedEverydaySpendUntilPayday)} over ${f.daysToPayday} days.</div></div>`:'<p class="note">Add a balance and your next payday to see how much is safe to spend.</p>';
+  return`<div class="card"><h2>Cash flow</h2><p class="sub">Answers "can I spend $X this weekend" and shows where the next 6 months are heading.</p>${safe}
+  <h3>Balances${bals.length?" · "+fmt(f?f.total:bals.reduce((a,b)=>a+b.amount,0)):""}</h3>${bals.length?bals.map(b=>`<div class="row"><div class="t"><b>${esc(b.label)}</b> <span class="note">as of ${esc(b.asOf||"")}${b.source==="alert"?", from bank alert":", entered by hand"}</span></div><div class="amt">${fmt(b.amount,2)}</div><button data-rm="b:${esc(b.id)}" aria-label="Remove ${esc(b.label)}">Remove</button></div>`).join(""):'<p class="note">No balances yet.</p>'}
+  ${fold("bal","Add or update a balance",`<form id="f-bal"><input name="label" placeholder="Account (e.g. Checking 1234)" required><input name="amount" type="number" step="0.01" placeholder="Balance" required style="width:130px"><button class="primary">Save balance</button></form><p class="note"><b>Keep it current:</b> turn on balance notifications at your bank (a daily balance alert or a low-balance alert) and forward them to the finance inbox. The sync then updates balances by itself.</p>`,!bals.length,"add")}
+  <h3>Until payday</h3>
+  <div class="row"><div class="t"><b>Buffer to keep</b><div class="note">Money you never want to dip below.</div></div><input type="number" min="0" step="50" value="${st.buffer||0}" data-buffer style="width:110px" aria-label="Buffer"></div>
+  <div class="row"><div class="t"><b>Next payday</b></div><input type="date" value="${esc(st.payday||"")}" data-payday aria-label="Next payday"></div>
+  <div class="row"><div class="t"><b>Bills due before payday</b><div class="note">Mortgage, cards and other bills not yet paid.</div></div><input type="number" min="0" step="10" value="${st.billsBefore||0}" data-bills style="width:110px" aria-label="Bills due before payday"></div>
+  ${proj}</div>`;
+}
+function goalsCard(){
+  const gs=S.settings.goals||[];
+  return`<div class="card"><h2>Savings goals</h2>${gs.length?gs.map(g=>{const left=Math.max(0,g.target-g.saved),mo=g.monthly>0?Math.ceil(left/g.monthly):null,p=g.target?g.saved/g.target*100:0;return`<div class="goal"><div class="top"><b>${esc(g.label)}</b><span class="note">${fmt(g.saved)} of ${fmt(g.target)}${left<=0?", reached":mo!=null?", about "+mo+" months at "+fmt(g.monthly)+"/mo":""}</span></div>${meter(p,null,"good",Math.round(p)+"% saved")}${g.funding&&g.funding.cuts&&g.funding.cuts.length?`<p class="note">Funded by budget cuts since ${esc(g.funding.date)}: ${g.funding.cuts.map(c=>esc(c.n)+" -"+fmt(c.c)).join(", ")}.</p>`:""}<div class="acts"><label class="note">Saved so far <input type="number" min="0" step="10" value="${g.saved}" data-goalsaved="${esc(g.id)}" style="width:100px"></label><button data-rm="g:${esc(g.id)}" aria-label="Remove ${esc(g.label)}">Remove</button></div></div>`}).join(""):'<p class="note">No goals yet.</p>'}
+  ${fold("goal","Add a goal",`<form id="f-goal"><input name="label" placeholder="Goal (e.g. Camera lens, Trip)" required><input name="target" type="number" min="0" step="1" placeholder="Target" required style="width:110px"><input name="saved" type="number" min="0" step="1" placeholder="Saved so far" style="width:120px"><input name="monthly" type="number" min="0" step="1" placeholder="Per month" style="width:110px"><button class="primary">Add goal</button></form>`,!gs.length,"add")}</div>`;
+}
+function plansCard(){
+  const ps=S.settings.plans||[];
+  return`<div class="card"><h2>Saved plans</h2><p class="sub">Ask a question above, then click <b>Save the plan</b> under the answer. Only the action steps are kept, not the explanation. After 4 weeks it is marked due, and you can have it checked against what you actually spent.</p>${ps.length?ps.map(p=>{const age=dayDiff(p.date,todayISO());return`<div class="row"><div class="t"><b>${esc(p.q||"Plan")}</b> <span class="note">saved ${esc(p.date)}</span>${age>=28?' <span class="pill warn">due for a check</span>':""}<div class="note" style="white-space:pre-wrap">${esc(p.text)}</div></div><button data-plancheck="${esc(p.id)}">Check progress</button><button data-rm="p:${esc(p.id)}" aria-label="Remove plan">Remove</button></div>`}).join(""):'<p class="note">None saved yet.</p>'}</div>`;
+}
+
+/* ---------- render ---------- */
+let pend=false;
+function render(){if(pend)return;pend=true;requestAnimationFrame(()=>{pend=false;draw()})}
+function draw(){
+  const fa=document.activeElement,fid=fa&&fa.id==="mq"?"mq":null,fpos=fid?fa.selectionStart:0;
+  const m=model(),mw=S.who&&m?model(S.who):m;
+  {const nm=(S.settings.name||"").trim(),th=$("#ttl");if(th){th.textContent=nm||"Squeezed Orange";th.style.cssText=nm?"":"position:absolute;left:-9999px"}document.title=nm||"Squeezed Orange"}
+  const bd=badges(m);
+  $("#nav").innerHTML=TABS.map(t=>{const b=bd[t[0]];return`<a href="#${t[0]}"${S.tab===t[0]?' aria-current="page"':""}>${t[1]}${b?`<span class="badge ${b.l}" title="${b.n} to check">${b.n}</span>`:""}</a>`}).join("");
+  TABS.forEach(t=>{$("#p-"+t[0]).hidden=S.tab!==t[0]});
+  $("#msg").innerHTML=(S.err?`<div class="err">${esc(S.err)}</div>`:"")+(S.slow?'<p class="note">Still reaching your data. It may be out of date.</p>':"");
+  const sy=S.sync;
+  $("#sync").textContent=sy&&sy.lastRun?`Last sync ${new Date(sy.lastRun).toLocaleDateString("en-US",{month:"short",day:"numeric"})}, ${sy.parsed||0} transactions read. Syncs every 6 hours.`:"No sync yet. Syncs every 6 hours.";
+  if(S.tab==="overview")$("#p-overview").innerHTML=viewOverview(m);
+  if(S.tab==="spending")$("#p-spending").innerHTML=viewSpending(m,mw);
+  if(S.tab==="leaks")$("#p-leaks").innerHTML=viewLeaks(mw);
+  if(S.tab==="plan")$("#p-plan").innerHTML=viewPlan(m);
+  if(S.tab==="review")$("#p-review").innerHTML=viewReview(m);
+  if(S.tab==="ask")$("#plans").innerHTML=plansCard();
+  if(fid){const e=document.getElementById(fid);if(e){e.focus();try{e.setSelectionRange(fpos,fpos)}catch(x){}}}
+  notifyNew(m);
+}
+function route(){const h=location.hash.slice(1),prev=S.tab;S.tab=TABS.some(t=>t[0]===h)?h:"overview";if(prev!==S.tab&&scrollY>0)scrollTo(0,0);render()}
+addEventListener("hashchange",route);
+
+/* tooltip */
+document.addEventListener("pointermove",e=>{const t=e.target.closest&&e.target.closest("[data-tip]"),tip=$("#tip");
+  if(!t){tip.hidden=true;return}tip.textContent=t.getAttribute("data-tip");tip.hidden=false;
+  tip.style.left=Math.min(e.clientX+12,innerWidth-250)+"px";tip.style.top=(e.clientY+14)+"px"});
+
+/* ---------- writes (one at a time) ---------- */
+let wq=Promise.resolve();
+let tT=null;
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(tT);tT=setTimeout(()=>{el.hidden=true},1600)}
+function queue(fn){wq=wq.then(fn).then(()=>{if(S.err){S.err="";render()}toast("Saved")}).catch(e=>{S.err="Could not save ("+(e&&e.code||"error")+"). Try again.";render()})}
+document.addEventListener("toggle",e=>{const d=e.target;if(d.matches&&d.matches("details[data-k]"))S.open[d.getAttribute("data-k")]=d.open},true);
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-txfilter],[data-txopen],[data-txmore]");if(!t)return;
+  if(t.matches("[data-txfilter]")){S.txf=t.getAttribute("data-txfilter");S.txAll=false;S.txOpen=null}
+  else if(t.matches("[data-txopen]")){const id=t.getAttribute("data-txopen");S.txOpen=S.txOpen===id?null:id}
+  else S.txAll=true;
+  render()});
+function saveSettings(mut){const next=JSON.parse(JSON.stringify(S.settings));next.income=next.income||{monthly:[],oneTime:[]};next.budgets=next.budgets||{};next.fixedNow=next.fixedNow||{};next.balances=next.balances||[];next.extraFixed=next.extraFixed||[];next.goals=next.goals||[];next.plans=next.plans||[];next.rules=next.rules||[];next.funds=next.funds||[];next.bills=next.bills||[];next.alerts=next.alerts||{over:true,warn:80,big:200,bigOn:true,browser:false};mut(next);S.settings=next;render();
+  queue(()=>db.doc(P+"/settings").set(next))}
+document.addEventListener("submit",e=>{
+  const f=e.target;if(f.id!=="f-mo"&&f.id!=="f-one")return;e.preventDefault();
+  const d=new FormData(f),amount=parseFloat(d.get("amount"));if(!(amount>=0))return;
+  const id="i"+Date.now().toString(36);
+  saveSettings(s=>{if(f.id==="f-mo")s.income.monthly.push({id,label:String(d.get("label")),amount,from:String(d.get("from")||NOW),to:String(d.get("to")||"")});
+    else s.income.oneTime.push({id,label:String(d.get("label")),amount,date:String(d.get("date")),months:Math.max(1,parseInt(d.get("months"),10)||1)})});
+});
+document.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest("[data-del]");if(!b)return;
+  const p=b.getAttribute("data-del").split(":"),kind=p[0],id=p[1];
+  saveSettings(s=>{const k=kind==="m"?"monthly":"oneTime";s.income[k]=s.income[k].filter(x=>x.id!==id)});
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.matches&&t.matches("[data-fixed],[data-fixedfrom]")){
+    const row=t.closest("[data-frow]"),name=row.getAttribute("data-frow"),amt=parseFloat(row.querySelector("[data-fixed]").value),from=row.querySelector("[data-fixedfrom]").value;
+    if(amt>=0)saveSettings(s=>{if(from)s.fixedNow[name]={amount:amt,from};else delete s.fixedNow[name]});
+  }
+  if(t.matches&&t.matches("[data-budget]")){const v=parseFloat(t.value);if(v>=0)saveSettings(s=>{s.budgets[t.getAttribute("data-budget")]=v})}
+  if(t.matches&&t.matches("[data-cat]")){
+    const id=t.getAttribute("data-cat"),mk=t.getAttribute("data-month"),doc=S.months[mk];if(!doc)return;
+    const next=JSON.parse(JSON.stringify(doc));const tx=next.txns.find(x=>(x.id||x.message_id)===id);if(!tx)return;
+    tx.category=t.value;tx.category_by_user=true;delete tx.splits;S.months[mk]=next;render();
+    queue(()=>db.doc(P+"/ledger/months/"+mk).set(next));
+  }
+});
+
+/* ---------- facts: computed in code so the model does not do arithmetic ---------- */
+const norm=s=>String(s||"").toLowerCase().replace(/[^a-z ]+/g," ").replace(/\b(sq|tst|sp|pp|pos|purchase|debit|card|inc|llc|www|com|return|refund|credit)\b/g," ").replace(/\s+/g," ").trim().slice(0,22);
+const dayDiff=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+const todayISO=()=>new Date().toISOString().slice(0,10);
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+const tid=t=>t.id||t.message_id;
+function refundMatch(all){
+  const out={},spend=all.filter(t=>t.amount>0),cr=all.filter(t=>t.amount<0).sort((a,b)=>a.date.localeCompare(b.date));
+  cr.forEach(c=>{let pick=c.refundFor?spend.find(t=>tid(t)===c.refundFor):null;
+    if(!pick){const cands=spend.filter(t=>norm(t.merchant)===norm(c.merchant)&&t.date<=c.date&&dayDiff(t.date,c.date)<=120&&!out[tid(t)]);
+      pick=cands.find(t=>Math.abs(t.amount+c.amount)<.01)||cands.sort((a,b)=>b.date.localeCompare(a.date))[0]||null}
+    if(pick)out[tid(pick)]={by:tid(c),amount:-c.amount,partial:-c.amount<pick.amount-.01}});
+  return out;
+}
+function facts(m){
+  const all=m.allTx,spend=all.filter(t=>t.amount>0),byM={};
+  spend.forEach(t=>{const k=t.date.slice(0,7);(byM[k]=byM[k]||[]).push(t)});
+  const ks=Object.keys(byM).sort(),cur=ks[ks.length-1],prev=ks[ks.length-2];
+  const agg=a=>{const o={};a.forEach(t=>{parts(t).forEach((p,i)=>{const c=o[p.category]=o[p.category]||{n:0,s:0};if(!i)c.n++;c.s+=p.amount})});return o};
+  let drivers=[];
+  if(prev){const a=agg(byM[cur]),b=agg(byM[prev]);
+    Object.keys(Object.assign({},a,b)).forEach(c=>{const x=a[c]||{n:0,s:0},y=b[c]||{n:0,s:0};
+      drivers.push({category:c,change:Math.round(x.s-y.s),visits:[y.n,x.n],avgTicket:[y.n?Math.round(y.s/y.n):0,x.n?Math.round(x.s/x.n):0]})});
+    drivers.sort((p,q)=>Math.abs(q.change)-Math.abs(p.change));drivers=drivers.slice(0,8)}
+  const biggest=cur?byM[cur].slice().sort((a,b)=>b.amount-a.amount).slice(0,5).map(t=>({d:t.date,m:t.merchant,a:t.amount,c:t.category})):[];
+  const gm={};spend.forEach(t=>{const k=norm(t.merchant);if(k)(gm[k]=gm[k]||[]).push(t)});
+  const priceChanges=[],renewals=[],today=todayISO();
+  Object.keys(gm).forEach(k=>{
+    const a=gm[k].slice().sort((x,y)=>x.date.localeCompare(y.date)),last=a[a.length-1];
+    const sim=(arr,tol)=>{const b=med(arr);return b>0&&arr.every(v=>Math.abs(v-b)/b<=tol)};
+    if(a.length>=2){const g2=dayDiff(a[a.length-2].date,last.date);if(g2>=345&&g2<=385&&sim([a[a.length-2].amount,last.amount],.15))renewals.push({merchant:last.merchant,amount:last.amount,cadence:"yearly",next:addDays(last.date,365)})}
+    if(a.length<3)return;
+    const gaps=a.slice(1).map((t,i)=>dayDiff(a[i].date,t.date)),g=med(gaps),prior=a.slice(0,-1).map(t=>t.amount);
+    /* only true subscriptions: monthly rhythm and a near-identical amount each time (so variable merchants such as online marketplaces are left out) */
+    if(!(g>=26&&g<=35&&gaps.every(x=>x>=24&&x<=37)&&sim(prior,.1)))return;
+    const base=med(prior),ch=Math.abs(last.amount-base)/base;
+    renewals.push({merchant:last.merchant,amount:last.amount,cadence:"monthly",next:addDays(last.date,Math.round(g))});
+    if(ch>.03&&ch<=.5)priceChanges.push({merchant:last.merchant,was:Math.round(base*100)/100,now:last.amount,date:last.date});
+  });
+  const upcoming=renewals.filter(r=>r.next>=addDays(today,-3)).sort((a,b)=>a.next.localeCompare(b.next)).slice(0,12);
+  const tags={};
+  all.forEach(t=>(t.tags||[]).forEach(g=>{const o=tags[g]=tags[g]||{total:0,count:0,items:[]};o.total+=t.amount;o.count++;o.items.push({d:t.date,m:t.merchant,a:t.amount,c:t.category})}));
+  Object.keys(tags).forEach(g=>{tags[g].total=Math.round(tags[g].total*100)/100;tags[g].items=tags[g].items.slice(-15)});
+  const worth={skipTotal:0,skipByMerchant:{},worthTotal:0};
+  all.forEach(t=>{if(t.worth==="skip"){worth.skipTotal+=t.amount;worth.skipByMerchant[t.merchant]=(worth.skipByMerchant[t.merchant]||0)+t.amount}else if(t.worth==="worth")worth.worthTotal+=t.amount});
+  const rm=refundMatch(all);
+  const refunds={pending:all.filter(t=>t.expectRefund&&t.amount>0&&!rm[tid(t)]).map(t=>({merchant:t.merchant,amount:t.amount,date:t.date,daysWaiting:dayDiff(t.date,today)})),
+    received:Object.keys(rm).map(id=>{const o=all.find(t=>tid(t)===id);return{merchant:o.merchant,charged:o.amount,refunded:rm[id].amount,partial:rm[id].partial}}).slice(0,10)};
+  const irregular=[],h=S.hist;
+  if(h&&h.cats)Object.keys(h.cats).forEach(c=>{if((h.fixedCats||[]).indexOf(c)>=0)return;
+    const ser=h.cats[c],big=[];ser.forEach((v,i)=>{if(v!=null&&v>=200)big.push({month:h.months[i],amount:Math.round(v)})});
+    const nz=ser.filter(v=>v!=null&&v>0).length;
+    if(big.length&&big.length<=3&&nz<=4)irregular.push({category:c,months:big,expectAgain:big.map(b=>String(+b.month.slice(0,4)+1)+b.month.slice(4))})});
+  const st=S.settings,bals=st.balances||[],bal=bals.reduce((s,b)=>s+b.amount,0),buf=st.buffer||0;
+  const dTo=st.payday?Math.max(0,dayDiff(today,st.payday)):null,daily=m.valid.length?(m.typical-m.fixedHist)/30:0,exp=dTo==null?null:Math.round(daily*dTo);
+  const cashFlow={balances:bals.map(b=>({label:b.label,amount:b.amount,asOf:b.asOf,source:b.source})),total:bal,buffer:buf,nextPayday:st.payday||null,daysToPayday:dTo,
+    billsBeforePayday:st.billsBefore||0,expectedEverydaySpendUntilPayday:exp,safeToSpend:(exp==null||!bals.length)?null:Math.round(bal-buf-(st.billsBefore||0)-exp)};
+  const goals=(st.goals||[]).map(g=>({label:g.label,target:g.target,saved:g.saved,monthly:g.monthly,monthsLeft:g.monthly>0?Math.ceil(Math.max(0,g.target-g.saved)/g.monthly):null}));
+  const plans=(st.plans||[]).map(p=>({date:p.date,question:p.q,text:p.text,ageDays:dayDiff(p.date,today)}));
+  return{monthsCompared:{current:cur||null,previous:prev||null,currentIsPartial:true},drivers,monthComparison:monthCompare(m).slice(0,14).map(r=>({category:r.name,thisMonthSoFar:Math.round(r.now),lastMonth:Math.round(r.last),average:Math.round(r.avg)})),biggestThisMonth:biggest,priceChanges:priceChanges.slice(0,10),upcomingRenewals:upcoming,tags,worth,refunds,irregular,cashFlow,goals,savedPlans:plans,sinkingFunds:(S.settings.funds||[]).map(f=>{const b=fundBal(f);return{label:f.label,category:f.category,monthlySetAside:f.monthly,balance:Math.round(b.bal)}})};
+}
+function upTx(mk,id,mut){const doc=S.months[mk];if(!doc)return;const next=JSON.parse(JSON.stringify(doc)),tx=next.txns.find(x=>tid(x)===id);if(!tx)return;mut(tx);S.months[mk]=next;render();queue(()=>db.doc(P+"/ledger/months/"+mk).set(next))}
+
+/* ---------- views: bills, import, balance, goals, plans ---------- */
+function monthCompare(m){
+  const cur=monthNow(m);
+  return m.stats.map(s=>({name:s.name,now:cur[s.name]||0,last:s.last,avg:s.avg})).filter(r=>r.now||r.last||r.avg>=20).sort((a,b)=>b.avg-a.avg||b.now-a.now);
+}
+function impPreview(){
+  if(S.impMsg)return`<p class="note">${esc(S.impMsg)}</p>`;
+  if(!IMP)return"";if(IMP.err)return`<p class="err">${esc(IMP.err)}</p>`;
+  const it=IMP.items||[],dates=it.map(x=>x.date).sort();
+  return`<p class="note" style="margin-top:8px">${esc(IMP.name)}: ${it.length} to import${dates.length?" ("+esc(dates[0])+" to "+esc(dates[dates.length-1])+")":""}, ${IMP.skipped} payments/transfers skipped, ${IMP.dups} already in the dashboard.</p>
+  <p class="note"><label>In this file, purchases are <select data-impsign><option value="pos"${IMP.sign==="pos"?" selected":""}>positive numbers</option><option value="neg"${IMP.sign==="neg"?" selected":""}>negative numbers</option></select></label> (flip this if the preview looks backwards)</p>
+  <div class="scroll"><table><thead><tr><th>Date</th><th>Merchant</th><th class="num">Amount</th><th>Category</th></tr></thead><tbody>${it.slice(0,6).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.merchant)}</td><td class="num">${fmt(x.amount,2)}</td><td>${esc(x.category)}</td></tr>`).join("")}</tbody></table></div>
+  ${it.length?`<p><button class="primary" data-impgo type="button">Import ${it.length} transactions</button></p>`:""}`;
+}
+
+/* ---------- CSV import ---------- */
+let IMP=null;
+const hash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return(h>>>0).toString(36)};
+function parseCSV(t){const rows=[];let r=[],c="",q=false;
+  for(let i=0;i<t.length;i++){const ch=t[i];
+    if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
+    else if(ch==='"')q=true;else if(ch===","){r.push(c);c=""}
+    else if(ch==="\n"||ch==="\r"){if(ch==="\r"&&t[i+1]==="\n")i++;r.push(c);c="";if(r.some(x=>x.trim()))rows.push(r);r=[]}else c+=ch}
+  r.push(c);if(r.some(x=>x.trim()))rows.push(r);return rows}
+const pdate=s=>{s=String(s||"").trim();let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[0];m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);if(!m)return null;let y=+m[3];if(y<100)y+=2000;return y+"-"+String(m[1]).padStart(2,"0")+"-"+String(m[2]).padStart(2,"0")};
+const pnum=s=>{s=String(s==null?"":s).trim();if(!s)return null;const neg=/^\(.*\)$/.test(s)||/^-/.test(s),n=parseFloat(s.replace(/[^0-9.]/g,""));return isNaN(n)?null:(neg?-n:n)};
+function csvRows(text){
+  const rows=parseCSV(text);if(rows.length<1)return{err:"The file has no rows."};
+  const hasHdr=!pdate(rows[0][0]);let di,ai,si,dbi=-1,cri=-1,body;
+  if(hasHdr){const h=rows[0].map(x=>x.toLowerCase().trim());body=rows.slice(1);
+    di=h.findIndex(x=>/trans.*date|posting date|posted|^date/.test(x));if(di<0)di=h.findIndex(x=>/date/.test(x));
+    si=h.findIndex(x=>/description|merchant|payee|name|memo|details/.test(x));
+    ai=h.findIndex(x=>/^amount|amount$/.test(x));dbi=h.findIndex(x=>/debit|withdraw/.test(x));cri=h.findIndex(x=>/credit|deposit/.test(x));
+    if(di<0||si<0||(ai<0&&dbi<0))return{err:"Could not find date, description and amount columns. Columns seen: "+rows[0].join(", ")}}
+  else{body=rows;di=0;ai=rows[0].findIndex((x,i)=>i>0&&pnum(x)!==null);let len=0;si=-1;
+    rows[0].forEach((x,i)=>{if(i!==di&&i!==ai&&isNaN(parseFloat(x))&&x.length>len&&x!=="*"){len=x.length;si=i}});
+    if(ai<0||si<0)return{err:"Could not read this file's columns."}}
+  const out=[];
+  body.forEach(r=>{const date=pdate(r[di]);let amt=ai>=0?pnum(r[ai]):null;
+    if(dbi>=0||cri>=0){const d=dbi>=0?pnum(r[dbi]):null,c=cri>=0?pnum(r[cri]):null;if(d)amt=Math.abs(d);else if(c)amt=-Math.abs(c)}
+    const desc=String(r[si]||"").replace(/\s+/g," ").trim();if(!date||amt==null||!desc)return;out.push({date,amt,desc})});
+  if(!out.length)return{err:"No transactions found in this file."};
+  return{rows:out,dual:dbi>=0||cri>=0};
+}
+const SKIP=/payment|autopay|thank you|transfer|payroll|direct dep|deposit|interest|zelle from|statement credit|cash ?back/i;
+const CATRULES={"Grocery":["grocery","supermarket","market","foods"],"Restaurant":["restaurant","cafe","coffee","pizza","sushi","grill","kitchen","bistro","diner","bakery","bar "],"Gas":["gas station","fuel","gasoline"],
+  "Travel":["airline","airfare","hotel","resort","lodging","car rental"],"Home/furniture":["furniture","hardware","home improvement"],"Health/Doctor":["pharmacy","clinic","medical","dental","hospital"],
+  "Phone & internet bill":["wireless","internet","telecom"],"Transportation":["parking","transit","taxi","rideshare","toll"],"Education":["tuition","school","university","course"],"Giving":["donation","charity"]};
+function guessCat(desc,learn){const k=norm(desc);if(learn[k])return learn[k];const d=desc.toLowerCase()+" ";for(const c in CATRULES)if(CATRULES[c].some(w=>d.indexOf(w)>=0))return c;return"Uncategorized"}
+function impBuild(){
+  const m=model(),learn={},cats=m?m.cats:[],ex=m?m.allTx:[],items=[],seen={},used={};let skipped=0,dups=0;
+  ex.forEach(t=>{if(t.category&&t.category!=="Uncategorized")learn[norm(t.merchant)]=t.category});
+  IMP.rows.forEach(r=>{const a=IMP.sign==="neg"?-r.amt:r.amt;
+    if(SKIP.test(r.desc)){skipped++;return}
+    const key=r.date+"|"+a.toFixed(2)+"|"+norm(r.desc);seen[key]=(seen[key]||0)+1;const id="csv-"+hash(key+"|"+seen[key]);
+    if(ex.some(t=>tid(t)===id)){dups++;return}
+    let replace=null;const near=ex.find(t=>t.source!=="csv"&&Math.abs(t.amount-a)<.005&&Math.abs(dayDiff(t.date,r.date))<=3&&!used[tid(t)]);
+    if(near){if(near.source==="screenshot"||near.source==="manual"){replace=tid(near);used[replace]=1}else{dups++;return}}
+    let c=guessCat(r.desc,learn);if(cats.indexOf(c)<0)c="Uncategorized";
+    items.push({id,date:r.date,amount:Math.round(a*100)/100,merchant:r.desc,location:"",card:"",bank:IMP.name,source:"csv",category:c,replace})});
+  IMP.items=items;IMP.skipped=skipped;IMP.dups=dups;
+}
+document.addEventListener("change",e=>{
+  const t=e.target;if(!t.matches)return;
+  if(t.id==="impfile"&&t.files&&t.files[0]){const f=t.files[0];S.impMsg="";
+    f.text().then(x=>{const r=csvRows(x);if(r.err){IMP={err:r.err};render();return}
+      const neg=r.rows.filter(z=>z.amt<0).length;IMP={name:f.name.replace(/\.csv$/i,"").slice(0,30),rows:r.rows,sign:r.dual?"pos":(neg>r.rows.length-neg?"neg":"pos")};impBuild();render()})}
+  if(t.matches("[data-impsign]")&&IMP){IMP.sign=t.value;impBuild();render()}
+  if(t.matches("[data-txf]")){const f=t.getAttribute("data-txf");
+    upTx(t.getAttribute("data-month"),t.getAttribute("data-id"),tx=>{
+      if(f==="tags")tx.tags=t.value.split(",").map(s=>s.trim().toLowerCase()).filter(Boolean);
+      else if(f==="worth"){if(t.value)tx.worth=t.value;else delete tx.worth}
+      else if(f==="expectRefund"){if(t.checked)tx.expectRefund=true;else delete tx.expectRefund}})}
+  if(t.matches("[data-buffer]")){const v=parseFloat(t.value);if(v>=0)saveSettings(s=>{s.buffer=v})}
+  if(t.matches("[data-bills]")){const v=parseFloat(t.value);if(v>=0)saveSettings(s=>{s.billsBefore=v})}
+  if(t.matches("[data-payday]"))saveSettings(s=>{s.payday=t.value});
+  if(t.matches("[data-goalsaved]")){const v=parseFloat(t.value),id=t.getAttribute("data-goalsaved");if(v>=0)saveSettings(s=>{const g=s.goals.find(x=>x.id===id);if(g)g.saved=v})}
+});
+document.addEventListener("submit",e=>{
+  const f=e.target;if(f.id!=="f-bal"&&f.id!=="f-goal")return;e.preventDefault();
+  const d=new FormData(f),label=String(d.get("label")).trim();
+  if(f.id==="f-bal"){const amount=parseFloat(d.get("amount"));if(!label||isNaN(amount))return;
+    saveSettings(s=>{const o=s.balances.find(b=>b.label.toLowerCase()===label.toLowerCase());
+      if(o){o.amount=amount;o.asOf=todayISO();o.source="manual"}else s.balances.push({id:"b"+Date.now().toString(36),label,amount,asOf:todayISO(),source:"manual"})})}
+  else{const target=parseFloat(d.get("target"));if(!label||!(target>=0))return;
+    saveSettings(s=>{s.goals.push({id:"g"+Date.now().toString(36),label,target,saved:parseFloat(d.get("saved"))||0,monthly:parseFloat(d.get("monthly"))||0})})}
+});
+document.addEventListener("click",e=>{
+  const c=e.target.closest&&e.target.closest("[data-rm],[data-plancheck],[data-impgo]");if(!c)return;
+  if(c.matches("[data-rm]")){const p=c.getAttribute("data-rm").split(":"),k={b:"balances",g:"goals",p:"plans",x:"extraFixed",r:"rules",f:"funds",l:"bills"}[p[0]];
+    if(k)saveSettings(s=>{s[k]=s[k].filter(x=>x.id!==p[1])})}
+  if(c.matches("[data-plancheck]")){const pl=(S.settings.plans||[]).find(x=>x.id===c.getAttribute("data-plancheck"));
+    if(pl){location.hash="ask";ask("Check my saved plan from "+pl.date+". The plan was: "+pl.text+"\nCompare my spending since "+pl.date+" with before using the data. Say what worked, what did not, and what to adjust.")}}
+  if(c.matches("[data-impgo]")&&IMP&&IMP.items&&IMP.items.length){
+    const by={},rep=new Set(IMP.items.map(i=>i.replace).filter(Boolean));
+    IMP.items.forEach(i=>{(by[i.date.slice(0,7)]=by[i.date.slice(0,7)]||[]).push(i)});
+    const mks=new Set(Object.keys(by));Object.keys(S.months).forEach(k=>{if((S.months[k].txns||[]).some(t=>rep.has(tid(t))))mks.add(k)});
+    mks.forEach(mk=>{const cur=S.months[mk]?JSON.parse(JSON.stringify(S.months[mk])):{month:mk,txns:[]};
+      cur.txns=cur.txns.filter(t=>!rep.has(tid(t))).concat((by[mk]||[]).map(i=>{const o=Object.assign({},i);delete o.replace;return o}));
+      S.months[mk]=cur;queue(()=>db.doc(P+"/ledger/months/"+mk).set(cur))});
+    S.impMsg="Imported "+IMP.items.length+" transactions across "+mks.size+" month(s).";IMP=null;render()}
+});
+function planBtn(after,q,text){const b=document.createElement("button");b.type="button";b.textContent="Save the plan";b.style.alignSelf="flex-start";
+  b.onclick=async()=>{b.disabled=true;b.textContent="Finding the plan...";let steps=[];
+    try{const o=await sample.json("Extract only the plan from this answer: the concrete actions the user should take, each with its dollar amount or target and timing if given. Do not include explanations, history, or numbers that only describe what already happened. Reply with JSON only: {\"steps\":[\"...\"]}. Use an empty list if the answer has no actions to take.\n\nQUESTION: "+q+"\n\nANSWER:\n"+text,{cache:false});steps=((o&&o.steps)||[]).map(x=>String(x).trim()).filter(Boolean).slice(0,8)}
+    catch(e){b.disabled=false;b.textContent="Save the plan";toast("Could not read the plan. Try again.");return}
+    if(!steps.length){b.textContent="No plan in this answer (it explains, but has no actions)";return}
+    saveSettings(s=>{s.plans.push({id:"p"+Date.now().toString(36),date:todayISO(),q:q.slice(0,120),text:steps.map(x=>"- "+x).join("\n").slice(0,800)})});b.textContent="Saved (see Saved plans below)"};
+  after.insertAdjacentElement("afterend",b)}
+
+function cardLabel(t){const c=t.card?"..."+t.card:"";return t.bank?(t.bank+(c?" "+c:"")):(c||(t.account?"Account "+t.account:""))}
+function nextSyncText(){
+  const d=new Date(),n=new Date(d);n.setMinutes(0,0,0);n.setHours(Math.floor(d.getHours()/6)*6+6);
+  const mins=Math.max(1,Math.round((n-d)/6e4)),h=Math.floor(mins/60),m=mins%60,when=n.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+  let t="Next sync in about "+(h?h+" h ":"")+m+" min ("+when+").";
+  const sy=S.sync;if(sy&&sy.lastRun&&(d-new Date(sy.lastRun))>7*36e5)t+=" Last sync was "+Math.round((d-new Date(sy.lastRun))/36e5)+" hours ago. Open the Claude app so it can run.";
+  return t}
+setInterval(()=>{const e=document.getElementById("nextsync");if(e)e.textContent=nextSyncText()},60000);
+
+
+document.addEventListener("submit",e=>{const f=e.target;if(f.id!=="f-fixed")return;e.preventDefault();
+  const d=new FormData(f),amount=parseFloat(d.get("amount")),label=String(d.get("label")).trim();if(!label||!(amount>=0))return;
+  saveSettings(s=>{s.extraFixed.push({id:"x"+Date.now().toString(36),label,amount,from:String(d.get("from")||NOW),to:String(d.get("to")||"")})})});
+
+/* ---------- budget plan from a goal ---------- */
+function bpBases(m){
+  const sp={};m.spikes.forEach(s=>{(sp[s.cat]=sp[s.cat]||{})[s.month]=1});
+  return m.stats.filter(s=>m.fixedNames.indexOf(s.name)<0&&!s.typical).map(s=>{
+    const vals=m.valid.filter(i=>!(sp[s.name]&&sp[s.name][m.months[i]])).map(i=>s.ser[i]==null?0:s.ser[i]);
+    return{name:s.name,base:Math.round(med(vals.length?vals:[s.med]))}}).filter(r=>r.base>=10);
+}
+function bpTarget(m){
+  if(BP.mode==="goal"){const g=(S.settings.goals||[]).find(x=>x.id===BP.goal);return g&&g.monthly>0?{T:g.monthly,label:"fund "+g.label,gid:g.id}:null}
+  const v=parseFloat(BP.val);if(!(v>0))return null;
+  if(BP.mode==="pct"){const tot=bpBases(m).reduce((a,r)=>a+r.base,0);return{T:Math.round(tot*Math.min(v,100)/100),label:"cut everyday spending by "+v+"%"}}
+  return{T:v,label:"cut "+fmt(v)+" a month"};
+}
+/* code splits the cut: weight by usual size (discretionary x3), at most 40% off any category, locked ones untouched */
+function bpSplit(rows,T,locks){
+  const cut={};rows.forEach(r=>{cut[r.name]=0});let left=T;
+  for(let it=0;it<20&&left>.5;it++){
+    const open=rows.filter(r=>!locks[r.name]&&cut[r.name]<r.base*.4-.5);if(!open.length)break;
+    const w=open.map(r=>(DISCRETIONARY.indexOf(r.name)>=0?3:1)*r.base),tw=w.reduce((a,b)=>a+b,0);let used=0;
+    open.forEach((r,i)=>{const add=Math.min(left*w[i]/tw,r.base*.4-cut[r.name]);cut[r.name]+=add;used+=add});left-=used;
+  }
+  return cut;
+}
+async function bpBuild(){
+  const m=model();if(!m)return;
+  const tg=bpTarget(m);
+  if(!tg||!(tg.T>0)){BP.msg="Enter a target above $0 first.";BP.res=null;render();return}
+  const rows=bpBases(m),cut=bpSplit(rows,tg.T,BP.locks);
+  const sg=(r,v)=>BP.locks[r.name]?r.base:Math.min(r.base,Math.max(Math.ceil(r.base*.6/10)*10,Math.round(v/10)*10));
+  rows.forEach(r=>{r.locked=!!BP.locks[r.name];r.sug=sg(r,r.base-cut[r.name]);r.code=r.sug;r.why=r.locked?"Kept as is":r.sug<r.base?"Spread by usual size, discretionary first":"No change"});
+  const tok=++BP.tok;BP.res={tg,rows,by:"code",summary:""};BP.msg="";BP.busy=!!sample;render();
+  if(!sample)return;
+  try{
+    const f=facts(m);
+    const out=await sample.json(`You adjust a monthly budget cut for one person. Goal: ${tg.label}; the cuts must add up to about ${fmt(tg.T)} a month. Use only the DATA. For every row you may change "suggested" (the new monthly budget). Rules: suggested is a multiple of 10, at most "usual" and at least 60% of "usual"; rows with locked=true keep suggested equal to usual; prefer cutting categories with would-skip marks, more visits or a higher average ticket (drivers), and protect ones marked worth it; do not invent merchants or facts. Move money between flexible categories only when the data supports it, otherwise keep codeSuggested. "why" is at most 12 words and cites a real number or mark from DATA. Reply with JSON only: {"summary":"<two sentences on the trade-offs and one swap idea>","rows":[{"name":"","suggested":0,"why":""}]} and include every row.\n\nDATA:\n`+JSON.stringify({target:{monthlyCut:tg.T,label:tg.label},rows:rows.map(r=>({name:r.name,usual:r.base,codeSuggested:r.code,locked:r.locked})),drivers:f.drivers,monthComparison:f.monthComparison,tags:f.tags,worth:f.worth}),{cache:false});
+    if(tok!==BP.tok)return;
+    const by={};((out&&out.rows)||[]).forEach(o=>{if(o&&o.name)by[o.name]=o});
+    rows.forEach(r=>{const o=by[r.name];if(!o||r.locked)return;const v=parseFloat(o.suggested);if(isNaN(v))return;r.sug=sg(r,v);if(o.why)r.why=String(o.why).slice(0,120)});
+    BP.res.by="claude";BP.res.summary=String((out&&out.summary)||"").slice(0,400);
+  }catch(e){if(tok!==BP.tok)return;BP.msg=e&&e.code==="not_granted"?"Claude access was declined, so the split from code is shown.":"Claude could not adjust the split, so the split from code is shown."}
+  if(tok===BP.tok){BP.busy=false;render()}
+}
+function bpApply(savePlan){
+  const r=BP.res;if(!r||BP.busy)return;
+  const ch=r.rows.filter(x=>x.sug<x.base),saved=ch.reduce((a,x)=>a+x.base-x.sug,0);
+  saveSettings(s=>{
+    ch.forEach(x=>{s.budgets[x.name]=x.sug});s.lastBudgetPlan={date:todayISO(),label:r.tg.label,cuts:ch.map(x=>({n:x.name,was:x.base,now:x.sug}))};
+    if(r.tg.gid){const g=s.goals.find(x=>x.id===r.tg.gid);if(g)g.funding={date:todayISO(),cuts:ch.map(x=>({n:x.name,c:x.base-x.sug}))}}
+    if(savePlan)s.plans.push({id:"p"+Date.now().toString(36),date:todayISO(),q:("Budget plan: "+r.tg.label).slice(0,120),text:("Budgets set: "+ch.map(x=>x.name+" "+fmt(x.sug)+" (was "+fmt(x.base)+")").join(", ")+". Saves "+fmt(saved)+" a month."+(r.summary?" "+r.summary:"")).slice(0,800)});
+  });
+  BP.res=null;BP.msg="Budgets applied"+(savePlan?" and plan saved":"")+". The Spending bars and the Overview pace meter now track them.";render();
+}
+function bpPreview(){
+  const r=BP.res;if(!r)return"";
+  const saved=r.rows.reduce((a,x)=>a+x.base-x.sug,0),gap=r.tg.T-saved,show=r.rows.filter(x=>x.sug<x.base||x.locked).sort((a,b)=>(b.base-b.sug)-(a.base-a.sug)),same=r.rows.length-show.length;
+  const who=BP.busy?"Claude is adjusting the split...":r.by==="claude"?"Split by code, then adjusted by Claude.":"Split by code"+(sample?"":" (Claude is not available here)")+".";
+  return`<div class="hl"><div class="l">Goal: ${esc(r.tg.label)}</div><div class="v ${gap>5?"":"pos"}">${fmt(saved)} a month</div><div class="note">${esc(who)} ${gap>5?"Short of the "+fmt(r.tg.T)+" target by "+fmt(gap)+": the other categories are at the 40% cap or kept untouched.":"Meets the "+fmt(r.tg.T)+" target."}</div></div>
+  ${r.summary?`<p class="note" style="white-space:pre-wrap">${esc(r.summary)}</p>`:""}
+  <div class="scroll"><table class="stack"><thead><tr><th>Category</th><th class="num">Usual</th><th class="num">Suggested</th><th class="num">Change</th><th>Why</th></tr></thead><tbody>${show.map(x=>`<tr><td class="first">${esc(x.name)}</td><td class="num" data-l="Usual">${fmt(x.base)}</td><td class="num" data-l="Suggested">${fmt(x.sug)}</td><td class="num" data-l="Change"><span class="${x.sug<x.base?"pos":""}">${x.sug<x.base?"-"+fmt(x.base-x.sug):"none"}</span></td><td data-l="Why" style="white-space:normal">${esc(x.why)}</td></tr>`).join("")}<tr class="tot"><td class="first">Total</td><td class="num" data-l="Usual">${fmt(r.rows.reduce((a,x)=>a+x.base,0))}</td><td class="num" data-l="Suggested">${fmt(r.rows.reduce((a,x)=>a+x.sug,0))}</td><td class="num" data-l="Change"><span class="pos">-${fmt(saved)}</span></td><td></td></tr></tbody></table></div>
+  <p class="note">${same?same+" other categor"+(same>1?"ies":"y")+" unchanged. ":""}Usual is the 12-month median with one-off spike months left out. Fixed costs are never cut.</p>
+  <div class="goal" style="border:0"><div class="acts"><button class="primary" data-bpapply="all"${BP.busy?" disabled":""}>Apply all</button><button data-bpapply="plan"${BP.busy?" disabled":""}>Apply and save as plan</button><button data-bpcancel>Cancel</button></div></div>`;
+}
+function budgetPlanCard(m){
+  if(!m)return"";
+  const gs=(S.settings.goals||[]).filter(g=>g.monthly>0),flex=bpBases(m);
+  if(BP.mode==="goal"&&!gs.length)BP.mode="amount";
+  if(BP.mode==="goal"&&!gs.find(g=>g.id===BP.goal))BP.goal=gs[0].id;
+  const modes=[["amount","Reduce by $ a month"],["pct","Reduce by %"]].concat(gs.length?[["goal","Fund a goal"]]:[]);
+  const inp=BP.mode==="goal"?`<select data-bpgoal aria-label="Goal to fund">${gs.map(g=>`<option value="${esc(g.id)}"${g.id===BP.goal?" selected":""}>${esc(g.label)} (${fmt(g.monthly)}/mo)</option>`).join("")}</select>`:`<input type="number" min="0" step="${BP.mode==="pct"?1:10}" value="${esc(BP.val)}" data-bpval placeholder="${BP.mode==="pct"?"%":"$ per month"}" style="width:130px" aria-label="Target">`;
+  return`<div class="card"><h2>Plan a budget from a goal</h2><p class="sub">Set a target and get category budgets built from your own history. Code splits the cut fairly, then Claude adjusts it using your tags, would-skip marks and visit habits. Nothing changes until you apply.</p>
+  <div class="detail" style="margin-top:10px"><select data-bpmode aria-label="Goal type">${modes.map(x=>`<option value="${x[0]}"${x[0]===BP.mode?" selected":""}>${x[1]}</option>`).join("")}</select>${inp}<button class="primary" data-bpbuild${BP.busy?" disabled":""}>Build plan</button></div>
+  ${fold("bplock","Keep some categories untouched",`<div class="detail">${flex.map(r=>`<label class="note"><input type="checkbox" data-bplock="${esc(r.name)}"${BP.locks[r.name]?" checked":""}> ${esc(r.name)}</label>`).join("")}</div>`,false,"add")}
+  ${BP.msg?`<p class="note" role="status">${esc(BP.msg)}</p>`:""}${bpPreview()}</div>`;
+}
+document.addEventListener("change",e=>{const t=e.target;if(!t.matches)return;
+  if(t.matches("[data-bpmode]")){BP.mode=t.value;BP.res=null;BP.msg="";render()}
+  else if(t.matches("[data-bpgoal]")){BP.goal=t.value;BP.res=null;render()}
+  else if(t.matches("[data-bpval]"))BP.val=t.value;
+  else if(t.matches("[data-bplock]")){const n=t.getAttribute("data-bplock");if(t.checked)BP.locks[n]=1;else delete BP.locks[n]}});
+document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest("[data-bpbuild],[data-bpapply],[data-bpcancel]");if(!c)return;
+  if(c.matches("[data-bpbuild]"))bpBuild();
+  else if(c.matches("[data-bpapply]"))bpApply(c.getAttribute("data-bpapply")==="plan");
+  else{BP.tok++;BP.res=null;BP.busy=false;BP.msg="";render()}});
+
+/* ---------- v20: rules, split, household, merchants, alerts, funds, bills, review ---------- */
+function owners(){const s=new Set();Object.values(S.months).forEach(d=>(d.txns||[]).forEach(t=>{if(t.owner)s.add(t.owner)}));return Array.from(s).sort()}
+function whoSeg(){const o=owners();if(o.length<2)return"";return`<div class="seg" role="group" aria-label="Whose spending" style="margin:2px 0">${[""].concat(o).map(x=>`<button type="button" data-who="${esc(x)}" aria-pressed="${S.who===x}">${esc(x||"Both")}</button>`).join("")}</div>`}
+/* rules: first rule whose text is in the merchant name wins; hand-picked categories are never touched */
+function applyRules(){
+  const rs=(S.settings.rules||[]).filter(r=>r.match);if(!rs.length||!db||!S.rulesReady)return;let any=false;
+  Object.keys(S.months).forEach(mk=>{const next=JSON.parse(JSON.stringify(S.months[mk])),ch=[];
+    (next.txns||[]).forEach(t=>{if(t.category_by_user)return;const r=rs.find(x=>String(t.merchant||"").toLowerCase().indexOf(x.match.toLowerCase())>=0);if(r&&t.category!==r.category){t.category=r.category;delete t.splits;ch.push(1)}});
+    if(ch.length){any=true;S.months[mk]=next;queue(()=>db.doc(P+"/ledger/months/"+mk).set(next))}});
+  if(any)render();
+}
+function rulesCard(m){
+  const rs=S.settings.rules||[],cats=(m?m.cats:[]).concat(["Uncategorized"]),opt=sel=>cats.map(c=>`<option${c===sel?" selected":""}>${esc(c)}</option>`).join("");
+  const cnt=r=>m?m.allTx.filter(t=>String(t.merchant).toLowerCase().indexOf(r.match.toLowerCase())>=0).length:0;
+  return`<div class="card">${fold("rules","<h2>Categorization rules</h2>",`<p class="sub">When a merchant name contains your text, the transaction gets that category. Rules apply to new syncs and to existing transactions, except ones you categorized by hand. The first matching rule wins.</p>
+  ${rs.length?rs.map(r=>`<div class="row"><div class="t"><input data-rulematch="${esc(r.id)}" value="${esc(r.match)}" aria-label="Merchant contains" style="width:200px"> <span class="note">is</span> <select data-rulecat="${esc(r.id)}" aria-label="Category">${opt(r.category)}</select> <span class="note">${cnt(r)} match${cnt(r)===1?"":"es"}</span></div><button data-rm="r:${esc(r.id)}" aria-label="Remove rule">Remove</button></div>`).join(""):'<p class="note">No rules yet. Add one below, or use "Always categorize" under a transaction\'s More.</p>'}
+  <form id="f-rule"><input name="match" placeholder="Merchant contains (e.g. trader joe)" required style="width:240px"><select name="category" aria-label="Category">${opt("")}</select><button class="primary">Add rule</button></form>`,rs.length>0||S.txf==="uncat","head")}</div>`;
+}
+/* split a purchase across categories (stored as splits on the transaction; the amount itself never changes) */
+const parts=t=>t.splits&&t.splits.length?t.splits:[{category:t.category,amount:t.amount}];
+/* merchant search and trends */
+const mkey=t=>norm(t.merchant)||String(t.merchant).toLowerCase();
+function merchCard(m){
+  if(!m)return"";
+  const all=m.allTx.filter(t=>t.amount>0);if(!all.length)return"";
+  const q=S.q.trim().toLowerCase();
+  if(!q){const g={};all.forEach(t=>{const k=mkey(t),o=g[k]=g[k]||{name:t.merchant,n:0,s:0};o.n++;o.s+=t.amount});
+    const top=Object.values(g).sort((a,b)=>b.s-a.s).slice(0,8);
+    return`<div class="card">${fold("topm","<h2>Top merchants</h2>",top.map(o=>row("",`<button type="button" class="link" data-merch="${esc(o.name)}">${esc(o.name)}</button><div class="note">${o.n} purchase${o.n>1?"s":""}, ${fmt(o.s/o.n)} each on average</div>`,fmt(o.s))).join("")+'<p class="note">Based on synced and imported transactions. Type a name in the search box under Transactions to see its trend.</p>',false,"head")}</div>`}
+  const hit=all.filter(t=>t.merchant.toLowerCase().indexOf(q)>=0);
+  if(!hit.length)return`<div class="card"><h2>"${esc(S.q)}"</h2><p class="note">No purchases match. Search looks at the merchant name.</p></div>`;
+  const tot=hit.reduce((a,t)=>a+t.amount,0),by={},cats={};
+  hit.forEach(t=>{const k=t.date.slice(0,7),o=by[k]=by[k]||{n:0,s:0};o.n++;o.s+=t.amount;cats[t.category]=(cats[t.category]||0)+1});
+  const ks=Object.keys(by).sort(),mx=Math.max.apply(null,ks.map(k=>by[k].s)),dates=hit.map(t=>t.date).sort(),topc=Object.keys(cats).sort((a,b)=>cats[b]-cats[a])[0];
+  let trend="";if(ks.length>=2){const a=by[ks[ks.length-2]].s,b=by[ks[ks.length-1]].s,d=b-a;trend=`${esc(mlabel(ks[ks.length-1]))} ${d>=0?"up":"down"} ${fmt(Math.abs(d))} from ${esc(mlabel(ks[ks.length-2]))}${ks[ks.length-1]===NOW?" (month in progress)":""}.`}
+  return`<div class="card"><div class="top"><h2>"${esc(S.q)}"</h2><button type="button" class="ghost" data-merch="">Clear search</button></div>
+  <div class="grid"><div class="kpi"><div class="l">Total spent</div><div class="v">${fmt(tot)}</div></div><div class="kpi"><div class="l">Purchases</div><div class="v">${hit.length}</div><div class="n">${fmt(tot/hit.length,2)} average</div></div><div class="kpi"><div class="l">Usual category</div><div class="v" style="font-size:1.1rem">${esc(topc)}</div><div class="n">${esc(dates[0])} to ${esc(dates[dates.length-1])}</div></div></div>
+  <h3>By month</h3><div class="bars">${ks.map(k=>`<div class="bar"><span class="name">${esc(mlabel(k))}</span><span class="track"><span class="fill" style="display:block;width:${(by[k].s/mx*100).toFixed(1)}%"></span></span><span class="val">${fmt(by[k].s)} · ${by[k].n}x</span></div>`).join("")}</div>
+  <p class="note">${trend}${ks.length<2?"Trends need at least two months of transactions.":""}</p></div>`;
+}
+/* spending alerts */
+const seenAl=new Set();let alInit=false;
+function notifyNew(m){
+  const a=S.settings.alerts||{};if(!m)return;const list=alerts(m).filter(x=>x.tab==="spending"||x.l==="crit");
+  const fresh=list.map(x=>x.t.replace(/<[^>]+>/g,"")).filter(k=>!seenAl.has(k));fresh.forEach(k=>seenAl.add(k));
+  if(!alInit){alInit=true;return}
+  if(a.browser&&typeof Notification!=="undefined"&&Notification.permission==="granted")fresh.forEach(k=>{try{new Notification("Squeezed Orange",{body:k})}catch(e){}});
+}
+function alertsCard(){
+  const a=S.settings.alerts||{},can=typeof Notification!=="undefined";
+  return`<div class="card"><h2>Spending alerts</h2><p class="sub">Alerts appear under Worth a look on Overview and as counts on the tabs.</p>
+  <div class="row"><div class="t"><label><input type="checkbox" data-al="over"${a.over!==false?" checked":""}> Warn when a category reaches <input type="number" min="10" max="100" step="5" value="${a.warn||80}" data-al="warn" style="width:70px" aria-label="Warn percent">% of its budget, and when it goes over</label></div></div>
+  <div class="row"><div class="t"><label><input type="checkbox" data-al="bigOn"${a.bigOn!==false?" checked":""}> Flag any purchase of at least $<input type="number" min="1" step="10" value="${a.big||200}" data-al="big" style="width:90px" aria-label="Big purchase amount"> in the last 7 days</label></div></div>
+  <div class="row"><div class="t"><b>Notifications</b><div class="note">${can?(a.browser?"On. This page notifies you when a new alert appears while it is open.":"Off. When on, this page notifies you while it is open."):"Not available in this view. Alerts still show on the page."} The sync task also reports new alerts after each run.</div></div>${can?`<button type="button" data-alnotify>${a.browser?"Turn off":"Turn on"}</button>`:""}</div></div>`;
+}
+/* sinking funds */
+function monthsBetween(a,b){const o=[];let y=+a.slice(0,4),mo=+a.slice(5,7);while((y+"-"+String(mo).padStart(2,"0"))<=b&&o.length<120){o.push(y+"-"+String(mo).padStart(2,"0"));mo++;if(mo>12){mo=1;y++}}return o}
+function catSpend(key,cat){const h=S.hist,i=h&&h.months?h.months.indexOf(key):-1;
+  if(i>=0)return(h.cats[cat]&&h.cats[cat][i])||0;
+  const d=S.months[key];return d?(d.txns||[]).reduce((a,t)=>a+parts(t).filter(p=>p.category===cat).reduce((x,p)=>x+p.amount,0),0):0}
+function fundBal(f){const ks=monthsBetween(f.start||NOW,NOW),set=(f.opening||0)+ks.length*f.monthly,spent=ks.reduce((a,k)=>a+catSpend(k,f.category),0);return{set,spent,bal:set-spent,months:ks.length}}
+function fundsCard(m){
+  const fs=S.settings.funds||[],cats=m?m.cats:[],tot=fs.reduce((a,f)=>a+f.monthly,0),sug=["Travel","Car Costs","Health/Doctor"].filter(c=>cats.indexOf(c)>=0&&!fs.some(f=>f.category===c));
+  return`<div class="card"><h2>Sinking funds</h2><p class="sub">Set aside a fixed amount each month for costs that arrive unevenly, such as travel, car and health. The balance is what you have set aside since the start month minus what you spent in that category. Total set aside: ${fmt(tot)} a month.</p>
+  ${fs.length?fs.map(f=>{const b=fundBal(f);return`<div class="goal"><div class="top"><b>${esc(f.label)}</b><span class="note">${esc(f.category)} · from ${esc(f.start||NOW)}</span></div><p class="big"><b class="${b.bal<0?"neg":"pos"}">${fmt(b.bal)}</b> <span class="note">balance: ${fmt(b.set)} set aside, ${fmt(b.spent)} spent over ${b.months} month${b.months>1?"s":""}</span></p>${b.bal<0?`<p class="note neg">Spent more than set aside. Raise the monthly amount or cut this category.</p>`:""}<div class="acts"><label class="note">Per month <input type="number" min="0" step="10" value="${f.monthly}" data-fundmonthly="${esc(f.id)}" style="width:100px"></label><button data-rm="f:${esc(f.id)}" aria-label="Remove ${esc(f.label)}">Remove</button></div></div>`}).join(""):'<p class="note">No funds yet.</p>'}
+  ${sug.length?`<div class="seg" style="margin-top:8px">${sug.map(c=>{const s=m.stats.find(x=>x.name===c);return`<button type="button" data-fundadd="${esc(c)}">Add ${esc(c)} fund (${fmt(Math.round(s.avg/10)*10)}/mo)</button>`}).join("")}</div>`:""}
+  ${fold("fund","Add a fund",`<form id="f-fund"><input name="label" placeholder="Name (optional)"><select name="category" aria-label="Category">${cats.map(c=>`<option>${esc(c)}</option>`).join("")}</select><input name="monthly" type="number" min="0" step="10" placeholder="Per month" required style="width:120px"><input name="opening" type="number" step="10" placeholder="Already saved" style="width:120px"><label class="note">From <input name="start" type="month" value="${NOW}"></label><button class="primary">Add fund</button></form>`,false,"add")}</div>`;
+}
+/* bill calendar */
+function billEvents(m,key){const dim=new Date(+key.slice(0,4),+key.slice(5,7),0).getDate(),ev=[];
+  facts(m).upcomingRenewals.forEach(r=>{if(r.next.slice(0,7)===key)ev.push({day:+r.next.slice(8,10),label:r.merchant,amount:r.amount})});
+  (S.settings.bills||[]).forEach(b=>ev.push({day:Math.min(b.day,dim),label:b.label,amount:b.amount}));
+  return ev.sort((a,b)=>a.day-b.day)}
+function calCard(m){
+  const off=S.calOff||0,d=new Date(now.getFullYear(),now.getMonth()+off,1),key=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),ev=billEvents(m,key),tot=ev.reduce((a,x)=>a+x.amount,0),bills=S.settings.bills||[];
+  let cells=["S","M","T","W","T","F","S"].map(x=>`<div class="h">${x}</div>`).join("");for(let i=0;i<d.getDay();i++)cells+="<div></div>";
+  for(let day=1;day<=dim;day++){const es=ev.filter(x=>x.day===day);cells+=`<div${off===0&&day===now.getDate()?' style="border-color:var(--s1)"':""}><b>${day}</b>${es.map(x=>`<span class="note" style="display:block">${esc(String(x.label).slice(0,11))} ${fmt(x.amount)}</span>`).join("")}</div>`}
+  return`<div class="card"><div class="top"><h2>Bill calendar</h2><div class="seg"><button type="button" data-caloff="0" aria-pressed="${off===0}">This month</button><button type="button" data-caloff="1" aria-pressed="${off===1}">Next month</button></div></div><p class="sub">${esc(mlong(key))}: ${ev.length} bill${ev.length===1?"":"s"}, ${fmt(tot)}. Subscriptions are found from repeating charges. Add other bills (mortgage, card payments) yourself.</p>
+  <div class="cal" style="margin-top:8px">${cells}</div>
+  ${bills.length?`<h3>Bills you added</h3>`+bills.map(b=>row("",`<b>${esc(b.label)}</b> <span class="note">day ${b.day} of every month</span>`,fmt(b.amount)+` <button data-rm="l:${esc(b.id)}" aria-label="Remove ${esc(b.label)}">Remove</button>`)).join(""):""}
+  ${fold("bill","Add a monthly bill",`<form id="f-bill"><input name="label" placeholder="Name (e.g. Mortgage)" required><input name="amount" type="number" min="0" step="0.01" placeholder="Amount" required style="width:120px"><input name="day" type="number" min="1" max="31" placeholder="Day of month" required style="width:130px"><button class="primary">Add bill</button></form>`,false,"add")}</div>`;
+}
+/* month in review */
+function monthCats(m,key){const h=S.hist,i=h&&h.months?h.months.indexOf(key):-1,o={};
+  if(i>=0){Object.keys(h.cats).forEach(c=>{const v=h.cats[c][i];if(v!=null)o[c]=v});return{c:o,has:Object.keys(o).length>0}}
+  const d=S.months[key];if(d)(d.txns||[]).forEach(t=>parts(t).forEach(p=>{o[p.category]=(o[p.category]||0)+p.amount}));
+  if(d)m.fixedStats.forEach(s=>{o[s.name]=(o[s.name]||0)+m.fixedAmt(s.name,key)});
+  return{c:o,has:!!d}}
+function viewReview(m){
+  if(!m)return empty();
+  const keys=m.months.concat([NOW]).slice().reverse(),key=S.revMonth&&keys.indexOf(S.revMonth)>=0?S.revMonth:(keys[1]||keys[0]),r=monthCats(m,key);
+  const sel=`<select data-revmonth aria-label="Month">${keys.map(k=>`<option value="${k}"${k===key?" selected":""}>${esc(mlong(k))}${k===NOW?" (so far)":""}</option>`).join("")}</select>`;
+  if(!r.has)return`<div class="card"><div class="top"><h2>Month in review</h2>${sel}</div><p class="note">No data for ${esc(mlong(key))}.</p></div>`;
+  const total=Object.values(r.c).reduce((a,b)=>a+b,0),inc=incomeFor(key).total,vs=total-m.typical;
+  const rows=Object.keys(r.c).filter(c=>m.fixedNames.indexOf(c)<0).map(c=>{const st=m.stats.find(s=>s.name===c);return{c,v:r.c[c],avg:st?st.avg:0,b:st?budgetFor(m,st):0}});
+  const up=rows.filter(x=>x.v-x.avg>=50).sort((a,b)=>(b.v-b.avg)-(a.v-a.avg)).slice(0,5),wins=rows.filter(x=>x.avg-x.v>=50).sort((a,b)=>(b.avg-b.v)-(a.avg-a.v)).slice(0,5);
+  const bud=rows.filter(x=>x.b>0),over=bud.filter(x=>x.v>x.b).sort((a,b)=>(b.v-b.b)-(a.v-a.b));
+  const tx=((S.months[key]||{}).txns||[]),g={};tx.filter(t=>t.amount>0).forEach(t=>{const k=mkey(t),o=g[k]=g[k]||{name:t.merchant,n:0,s:0};o.n++;o.s+=t.amount});const topm=Object.values(g).sort((a,b)=>b.s-a.s).slice(0,5);
+  const dbl=tx.filter(t=>(t.flags||[]).indexOf("possible_double_charge")>=0).length,unc=tx.filter(t=>t.category==="Uncategorized").length;
+  const lp=S.settings.lastBudgetPlan,cm=lp&&lp.cuts?lp.cuts.map(c=>({n:c.n,was:c.was,now:c.now,spent:r.c[c.n]||0})):[];
+  return`<div class="card"><div class="top"><h2>Month in review</h2>${sel}</div>
+  <div class="grid" style="margin-top:10px"><div class="kpi"><div class="l">Spent${key===NOW?" so far":""}</div><div class="v">${fmt(total)}</div><div class="n"><span class="${vs>0?"neg":"pos"}">${vs>=0?"+":"-"}${fmt(Math.abs(vs))}</span> vs a typical ${fmt(m.typical)}</div></div>
+  <div class="kpi"><div class="l">Income</div><div class="v">${inc?fmt(inc):"Not set"}</div><div class="n">${inc?`<span class="${inc-total<0?"neg":"pos"}">${fmt(inc-total)}</span> left after spending`:""}</div></div>
+  <div class="kpi"><div class="l">Within budget</div><div class="v">${bud.length-over.length} of ${bud.length}</div><div class="n">categories with a budget</div></div></div></div>
+  <div class="grid two"><div class="card"><h2>Biggest increases</h2><p class="sub">Against each category's 12-month average.</p>${up.length?up.map(x=>row(iconWarn,`<b>${esc(x.c)}</b> ${fmt(x.v)} against an average of ${fmt(x.avg)}`,"+"+fmt(x.v-x.avg))).join(""):row(iconOk,"Nothing rose by $50 or more.")}</div>
+  <div class="card"><h2>Wins</h2><p class="sub">Categories well below their average.</p>${wins.length?wins.map(x=>row(iconOk,`<b>${esc(x.c)}</b> ${fmt(x.v)} against an average of ${fmt(x.avg)}`,"-"+fmt(x.avg-x.v))).join(""):row(iconInfo,"No category fell by $50 or more.")}</div></div>
+  ${over.length?`<div class="card"><h2>Over budget</h2>${over.slice(0,6).map(x=>row(iconCrit,`<b>${esc(x.c)}</b> ${fmt(x.v)} of ${fmt(x.b)}`,"+"+fmt(x.v-x.b))).join("")}</div>`:""}
+  ${cm.length?`<div class="card"><h2>Your budget cuts</h2><p class="sub">Plan applied ${esc(lp.date)}: ${esc(lp.label)}.</p><div class="scroll"><table class="stack"><thead><tr><th>Category</th><th class="num">Was</th><th class="num">Budget now</th><th class="num">Spent</th><th>Status</th></tr></thead><tbody>${cm.map(c=>`<tr><td class="first">${esc(c.n)}</td><td class="num" data-l="Was">${fmt(c.was)}</td><td class="num" data-l="Budget now">${fmt(c.now)}</td><td class="num" data-l="Spent">${fmt(c.spent)}</td><td data-l="Status"><span class="${c.spent<=c.now?"pos":"neg"}">${c.spent<=c.now?"Within the new budget":"Over by "+fmt(c.spent-c.now)}</span></td></tr>`).join("")}</tbody></table></div></div>`:""}
+  ${topm.length||dbl||unc?`<div class="card"><h2>Details</h2>${topm.map(o=>row("",`<b>${esc(o.name)}</b> <span class="note">${o.n} purchase${o.n>1?"s":""}</span>`,fmt(o.s))).join("")}${dbl?row(iconCrit,`${dbl} possible double charge${dbl>1?"s":""}. See Leaks &amp; savings.`):""}${unc?row(iconWarn,`${unc} transaction${unc>1?"s":""} still need a category.`):""}</div>`:""}`;
+}
+/* handlers */
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-who],[data-merch],[data-mkrule],[data-split],[data-unsplit],[data-fundadd],[data-alnotify],[data-caloff]");if(!t)return;
+  if(t.matches("[data-who]")){S.who=t.getAttribute("data-who");S.txAll=false;S.txOpen=null;render()}
+  else if(t.matches("[data-merch]")){S.q=t.getAttribute("data-merch");S.txAll=false;render()}
+  else if(t.matches("[data-mkrule]")){const m=model(),id=t.getAttribute("data-mkrule"),tx=m&&m.allTx.find(x=>tid(x)===id);if(!tx)return;
+    if(tx.category==="Uncategorized"){toast("Pick a category first");return}
+    const match=String(tx.merchant).trim().toLowerCase();if((S.settings.rules||[]).some(r=>r.match.toLowerCase()===match)){toast("A rule for this merchant exists");return}
+    saveSettings(s=>{s.rules.push({id:"r"+Date.now().toString(36),match,category:tx.category})});applyRules()}
+  else if(t.matches("[data-split]")){const box=t.closest(".detail"),amt=parseFloat(box.querySelector("[data-spamt]").value),cat=box.querySelector("[data-spcat]").value,id=t.getAttribute("data-split"),mk=t.getAttribute("data-month"),d=S.months[mk],tx=d&&(d.txns||[]).find(x=>tid(x)===id);
+    if(!tx)return;if(!(amt>0&&amt<tx.amount)){toast("Enter an amount smaller than the purchase");return}
+    upTx(mk,id,x=>{x.splits=[{category:x.category,amount:Math.round((x.amount-amt)*100)/100},{category:cat,amount:amt}]})}
+  else if(t.matches("[data-unsplit]"))upTx(t.getAttribute("data-month"),t.getAttribute("data-unsplit"),x=>{delete x.splits});
+  else if(t.matches("[data-fundadd]")){const m=model(),c=t.getAttribute("data-fundadd"),st=m&&m.stats.find(x=>x.name===c);if(!st)return;saveSettings(s=>{s.funds.push({id:"f"+Date.now().toString(36),label:c,category:c,monthly:Math.round(st.avg/10)*10,opening:0,start:NOW})})}
+  else if(t.matches("[data-alnotify]")){
+    if(S.settings.alerts&&S.settings.alerts.browser){saveSettings(s=>{s.alerts.browser=false});return}
+    try{Promise.resolve(Notification.requestPermission()).then(p=>{if(p==="granted")saveSettings(s=>{s.alerts.browser=true});else toast("Notifications were not allowed")}).catch(()=>toast("Notifications are not available here"))}catch(x){toast("Notifications are not available here")}}
+  else if(t.matches("[data-caloff]")){S.calOff=+t.getAttribute("data-caloff");render()}
+});
+document.addEventListener("input",e=>{if(e.target&&e.target.id==="mq"){S.q=e.target.value;S.txAll=false;render()}});
+document.addEventListener("change",e=>{const t=e.target;if(!t.matches)return;
+  if(t.matches("[data-rulematch]")){const v=t.value.trim();if(v){saveSettings(s=>{const r=s.rules.find(x=>x.id===t.getAttribute("data-rulematch"));if(r)r.match=v});applyRules()}}
+  else if(t.matches("[data-rulecat]")){saveSettings(s=>{const r=s.rules.find(x=>x.id===t.getAttribute("data-rulecat"));if(r)r.category=t.value});applyRules()}
+  else if(t.matches("[data-al]")){const k=t.getAttribute("data-al"),v=t.type==="checkbox"?t.checked:parseFloat(t.value);if(t.type==="checkbox"||v>0)saveSettings(s=>{s.alerts[k]=v})}
+  else if(t.matches("[data-fundmonthly]")){const v=parseFloat(t.value);if(v>=0)saveSettings(s=>{const f=s.funds.find(x=>x.id===t.getAttribute("data-fundmonthly"));if(f)f.monthly=v})}
+  else if(t.matches("[data-revmonth]")){S.revMonth=t.value;render()}
+});
+document.addEventListener("submit",e=>{const f=e.target;if(["f-rule","f-fund","f-bill"].indexOf(f.id)<0)return;e.preventDefault();const d=new FormData(f);
+  if(f.id==="f-rule"){const match=String(d.get("match")).trim().toLowerCase();if(!match)return;saveSettings(s=>{s.rules.push({id:"r"+Date.now().toString(36),match,category:String(d.get("category"))})});applyRules();f.reset()}
+  else if(f.id==="f-fund"){const monthly=parseFloat(d.get("monthly")),cat=String(d.get("category"));if(!(monthly>=0))return;saveSettings(s=>{s.funds.push({id:"f"+Date.now().toString(36),label:String(d.get("label")).trim()||cat,category:cat,monthly,opening:parseFloat(d.get("opening"))||0,start:String(d.get("start")||NOW)})})}
+  else{const amount=parseFloat(d.get("amount")),day=parseInt(d.get("day"),10),label=String(d.get("label")).trim();if(!label||!(amount>=0)||!(day>=1&&day<=31))return;saveSettings(s=>{s.bills.push({id:"l"+Date.now().toString(36),label,amount,day})})}
+});
+
+document.addEventListener("input",e=>{const f=e.target.form;if(!f||f.id!=="f-one")return;
+  const a=parseFloat(f.amount.value),n=Math.max(1,parseInt(f.months.value,10)||1),el=document.getElementById("onePrev"),k=(f.date.value||"").slice(0,7);
+  if(!el)return;if(!(a>0)||!k){el.textContent="";return}
+  const end=monthsBetween(k,"2099-12")[n-1];
+  el.textContent=n>1?fmt(a)+" over "+n+" months = "+fmt(a/n)+" a month, "+mlabel(k)+" to "+mlabel(end)+".":fmt(a)+" counts in "+mlabel(k)+" only."});
+/* ---------- first run: name, getting started, start without history ---------- */
+const DEFAULT_CATS=["Grocery","Restaurant","Gas","Travel","Home/furniture","Health/Doctor","Phone & internet bill","Transportation","Education","Giving","Shopping","Entertainment","Clothes","Other"];
+function freshHistory(){const ms=[],d=new Date(now.getFullYear(),now.getMonth()-12,1);for(let i=0;i<12;i++){ms.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));d.setMonth(d.getMonth()+1)}
+  const cats={};DEFAULT_CATS.forEach(c=>{cats[c]=ms.map((_,i)=>i===11?0:null)});return{months:ms,cats,fixedCats:[],source:"empty"}}
+function setupSteps(m){
+  const st=S.settings,inc=st.income||{},hasTx=m?m.allTx.length>0:false;
+  return[
+    {done:!!(S.sync&&S.sync.lastRun),t:"Run the first sync",d:"In Claude, run /finance-setup, then tell Claude \"Sync my finances now\"."},
+    {done:hasTx,t:"Get your first transactions",d:"Forward a bank or card alert to your finance inbox, or import a CSV on Spending."},
+    {done:!!(S.hist&&S.hist.source!=="empty"),t:"Add your past spending (optional)",d:"Ask Claude to build 12 months of category totals from your statements, or skip and let it build up from alerts.",tab:null},
+    {done:(inc.monthly||[]).length>0||(inc.oneTime||[]).length>0,t:"Add your income",d:"Take-home pay, on Budget & income.",tab:"plan"},
+    {done:(st.extraFixed||[]).length>0||Object.keys(st.fixedNow||{}).length>0||!!(S.hist&&(S.hist.fixedCats||[]).length),t:"Add fixed monthly costs",d:"Rent or mortgage, insurance, loans, on Budget & income.",tab:"plan"},
+    {done:(st.balances||[]).length>0,t:"Add an account balance",d:"Needed for safe-to-spend and runway, on Budget & income.",tab:"plan"},
+    {done:!!(st.name&&st.name.trim()),t:"Name your dashboard",d:"Shown at the top and in the browser tab, on Budget & income.",tab:"plan"}];
+}
+function startCard(m){
+  const st=S.settings;if(st.onboardingDismissed||S.noDb)return"";
+  const steps=setupSteps(m),n=steps.filter(x=>x.done).length;if(n===steps.length)return"";
+  return`<div class="card">${fold("start",`<h2>Getting started: ${n} of ${steps.length} done</h2>`,steps.map(x=>row(x.done?iconOk:iconInfo,`<b>${esc(x.t)}</b><div class="note">${esc(x.d)}${x.tab&&!x.done?` <a href="#${x.tab}">Go there</a>`:""}</div>`)).join("")+`<p class="note">Run <code>/finance-status</code> in Claude any time to see what is set up on your computer and what to do next. <button type="button" class="link" data-dismissstart>Hide this card</button></p>`,true,"head")}</div>`;
+}
+function nameCard(){return`<div class="card"><h2>Your dashboard</h2><p class="sub">The name shown at the top and in the browser tab.</p><div class="detail" style="margin-top:8px"><input data-dname value="${esc(S.settings.name||"")}" placeholder="Squeezed Orange" style="width:260px" aria-label="Dashboard name"></div></div>`}
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("[data-startfresh],[data-dismissstart]");if(!t)return;
+  if(t.matches("[data-startfresh]")){if(!db)return;queue(()=>db.doc(P+"/history").set(freshHistory()))}
+  else saveSettings(s=>{s.onboardingDismissed=true})});
+document.addEventListener("change",e=>{const t=e.target;if(t.matches&&t.matches("[data-dname]"))saveSettings(s=>{s.name=t.value.trim()})});
+
+/* ---------- chat ---------- */
+const RULES=`You are the spending analyst inside a personal finance dashboard for one person. Answer only from the DATA below. Be concise: short paragraphs or bullets, real numbers, dollars. Category history is monthly totals for the months in DATA.months; null means no data for that month. Categories listed in fixedCategories (for example rent or mortgage, insurance, taxes) are fixed monthly costs assumed constant and are included in the totals; income tax likely falls if income falls, so flag that when relevant. Compare incomeByMonth with monthTotals for cash flow. Transactions with merchant names exist only for mail the sync has read, mostly since the user's setup date. HISTORY READINESS: DATA.merchantHistory gives firstDate, months (distinct months with merchant-level transactions) and count. Questions that need merchant-level history (per-visit or frequency changes, price increases, upcoming renewals, annual or irregular expenses, keeping a named habit such as Friday dinners while saving) need at least 3 months, and annual-expense questions about merchants need 12. If there is not enough, do not guess: reply 'Not enough history yet. Merchant-level data starts on <firstDate> (<months> month(s) so far). Either ask again in about <N> weeks, or backfill with a CSV: sign in to your bank or card website, open the account, go to Transactions (or Activity), choose Download or Export, pick CSV and a date range of the last 12 months, then upload it under Import past transactions (CSV) on the Spending tab. Do this once per account or card.' Still give whatever category-level answer the 12-month totals support. DATA.facts is computed in code: use its numbers as given and never recompute them. facts.drivers compares the current (partial) month with the previous one: visits [prev,current] and avgTicket [prev,current] show whether a rise came from more visits, a higher ticket or one big purchase (see biggestThisMonth). facts.cashFlow answers "can I spend $X": state balance, buffer, bills before payday and expected everyday spending, then the safeToSpend result; if it is null, say which input is missing on the Budget & income tab. facts.monthComparison gives each category this month so far (partial month) against last month and the 12-month average, which is the main answer to "where did it go" or "did I spend more"; facts.priceChanges and facts.upcomingRenewals cover only true repeating subscriptions, never variable merchants. facts.tags holds trip and project totals; facts.worth holds items marked worth it or would skip; facts.refunds, facts.upcomingRenewals, facts.priceChanges and facts.irregular answer refund, renewal, price and irregular-expense questions; facts.goals compares buying now versus waiting; facts.sinkingFunds lists monthly set-asides and their balances; facts.savedPlans are earlier plans to check. When facts for a question are empty (no balances, no tags, no marks, no goals), say which tab to fill in instead of estimating. For a savings target, propose 2 or 3 concrete changes with estimated monthly savings, and tell the user they can save the answer as a plan. If the data cannot answer, say what is missing. Do not give investment, tax or legal advice. Suggest concrete changes when asked about savings.`;
+const turns=[];let ctl=null;
+function ctxText(){
+  const m=model();if(!m)return"No data loaded.";
+  const o={today:now.toISOString().slice(0,10),months:m.months,monthTotals:m.totals.map(v=>v==null?null:Math.round(v)),
+    typicalMonth:Math.round(m.typical),categories:m.stats.map(s=>({name:s.name,monthly:s.ser.map(v=>v==null?null:Math.round(v)),avg:Math.round(s.avg),median:Math.round(s.med),budget:budgetFor(m,s)})),
+    income:S.settings.income,incomeThisMonth:incomeFor(NOW).total,fixedCategories:m.fixedNames,fixedPerMonth:m.fixedMonthly,fixedAmountsFromNow:m.fixedNow,otherFixedCosts:S.settings.extraFixed||[],
+    incomeByMonth:m.months.map(k=>incomeFor(k).total),thisMonth:{key:NOW,spentIncludingFixed:Math.round(m.curTotal*100)/100,everydaySoFar:Math.round(m.curSpent*100)/100,fixedAssumedPaidEveryMonth:m.fixedMonthly},
+    merchantHistory:(()=>{const ds=m.allTx.filter(t=>t.source!=="screenshot"&&t.source!=="manual").map(t=>t.date).sort();return{firstDate:ds[0]||null,months:new Set(ds.map(d=>d.slice(0,7))).size,count:ds.length}})(),transactions:m.allTx.slice(-250).map(t=>({d:t.date,a:t.amount,m:t.merchant,c:t.category,card:t.card,who:t.owner,bank:t.bank,f:t.flags})),
+    recurring:m.recurring,spikes:m.spikes.slice(0,10),facts:facts(m)};
+  return JSON.stringify(o);
+}
+function addMsg(cls,text){const d=document.createElement("div");d.className="m "+cls;d.textContent=text;$("#msgs").appendChild(d);d.scrollIntoView({block:"nearest"});return d}
+async function ask(text){
+  if(!sample||!text.trim())return;
+  turns.push({role:"user",content:text});addMsg("u",text);
+  const bubble=addMsg("a","Thinking...");$("#send").disabled=true;$("#stop").hidden=false;ctl=new AbortController();
+  try{
+    const r=await sample([{role:"user",content:RULES+"\n\nDATA:\n"+ctxText()}].concat(turns.slice(-12)),{cache:false,signal:ctl.signal,onText:u=>{bubble.textContent=u.text}});
+    turns.push({role:"assistant",content:r.text});planBtn(bubble,text,r.text);if(r.truncated)bubble.textContent+="\n(Cut short. Ask for less at a time.)";
+  }catch(e){
+    turns.pop();
+    if(e.text)bubble.textContent=e.text+"\n(Interrupted.)";
+    else bubble.textContent=e.code==="cancelled"?"Stopped.":e.code==="rate_limited"?"Too many questions or usage limit reached. Try again later.":e.code==="not_granted"?"Claude access was declined for this page.":"That did not work. Try again.";
+  }finally{$("#send").disabled=false;$("#stop").hidden=true;ctl=null}
+}
+function setupChat(){
+  const ch=["Where can I cut $500 a month?","Why was December so high?","Which charges repeat every month?","Is my spending higher than usual lately?"];
+  $("#chips").innerHTML=ch.map(c=>`<button type="button">${esc(c)}</button>`).join("");
+  $("#chips").addEventListener("click",e=>{if(e.target.tagName==="BUTTON")ask(e.target.textContent)});
+  $("#chatform").addEventListener("submit",e=>{e.preventDefault();const v=$("#q").value;$("#q").value="";ask(v)});
+  $("#q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#chatform").requestSubmit()}});
+  $("#stop").addEventListener("click",()=>ctl&&ctl.abort());
+  chatState();
+}
+let chatLoading=true;
+function chatState(){
+  const on=!!sample;$("#send").disabled=!on;$("#q").disabled=!on;
+  $("#chatnote").textContent=on?"The first question asks permission to use your Claude account.":(chatLoading?"Connecting to Claude...":"Chat needs Claude access, which is not available here.");
+}
+
+/* ---------- start ---------- */
+async function init(){
+  route();setupChat();
+  const c=window.claude;
+  if(!c||!c.use){chatLoading=false;chatState();S.noDb=true;render();return}
+  const res=await Promise.all([c.use("db"),c.use("user"),c.use("sample")]);
+  db=res[0];sample=res[2];chatLoading=false;chatState();
+  const uid=res[1]?await res[1].id():null;
+  if(!db||!uid){S.noDb=true;render();return}
+  P="data/users/"+uid;
+  const timer=setTimeout(()=>{S.slow=true;render()},10000),ok=()=>{clearTimeout(timer);S.slow=false},bad=e=>{ok();S.err="Could not read your data ("+(e&&e.code||"error")+")";render()};
+  db.doc(P+"/history").onSnapshot(s=>{ok();S.hist=s.exists?s.data():null;render()},bad);
+  db.doc(P+"/settings").onSnapshot(s=>{ok();if(s.exists){const d=s.data();S.settings={income:d.income||{monthly:[],oneTime:[]},budgets:d.budgets||{},fixedNow:d.fixedNow||{},balances:d.balances||[],buffer:d.buffer||0,payday:d.payday||"",billsBefore:d.billsBefore||0,goals:d.goals||[],plans:d.plans||[],extraFixed:d.extraFixed||[],rules:d.rules||[],funds:d.funds||[],bills:d.bills||[],lastBudgetPlan:d.lastBudgetPlan||null,name:d.name||"",onboardingDismissed:!!d.onboardingDismissed,alerts:Object.assign({over:true,warn:80,big:200,bigOn:true,browser:false},d.alerts||{})}}S.rulesReady=true;render();applyRules()},bad);
+  db.doc(P+"/sync").onSnapshot(s=>{ok();S.sync=s.exists?s.data():null;render()},bad);
+  db.collection(P+"/ledger/months").onSnapshot(q=>{ok();const o={};q.docs.forEach(d=>{o[d.id]=d.data()});S.months=o;render();applyRules()},bad);
+}
+init();
+</script>
+
+</body></html>

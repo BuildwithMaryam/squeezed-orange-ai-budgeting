@@ -1,0 +1,17 @@
+{
+  "name": "squeezed-orange",
+  "version": "0.1.0",
+  "description": "AI automates your budget, spots money leaks, and suggests savings without accessing your bank account.",
+  "author": {
+    "name": "Maryam Reza",
+    "email": "hello@maryamreza.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "finance",
+    "budget",
+    "gmail",
+    "dashboard"
+  ],
+  "displayName": "Squeezed Orange"
+}

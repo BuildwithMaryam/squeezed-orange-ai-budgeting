@@ -1,0 +1,16 @@
+{
+  "name": "squeezed-orange-marketplace",
+  "description": "AI automates your budget, spots money leaks, and suggests savings without accessing your bank account.",
+  "owner": {
+    "name": "MarBeh Tech LLC",
+    "email": "hello@maryamreza.com"
+  },
+  "plugins": [
+    {
+      "name": "squeezed-orange",
+      "source": "./plugins/squeezed-orange",
+      "description": "AI automates your budget, spots money leaks, and suggests savings without accessing your bank account.",
+      "displayName": "Squeezed Orange"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Example Bank",
+    "sender_contains": "alerts.example-bank.com",
+    "amount": "purchase of \\$([\\d,]+\\.\\d{2})",
+    "merchant": "Merchant:\\s*(.+?)\\s*$",
+    "date": "Date:\\s*(\\d{1,2}/\\d{1,2}/\\d{4})",
+    "date_format": "%m/%d/%Y",
+    "card": "card \\.\\.\\.(\\d{4})",
+    "location_separator": " in "
+  }
+]
