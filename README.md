@@ -59,9 +59,15 @@ Until step 6 or a few months of alerts, answers that need merchant history say "
 | Automated checks | `plugins/squeezed-orange/tests/` (run `python3 plugins/squeezed-orange/scripts/run_checks.py`) |
 | Model-graded evals | `plugins/squeezed-orange/evals/` (run `claude plugin eval .` in the plugin folder) |
 
-Status: pre-release. Fill the author and license fields in both manifests before publishing.
+Status: pre-release (v0.1.0).
 
-Install: `/plugin install squeezed-orange --marketplace BuildwithMaryam/squeezed-orange-ai-budgeting`
+Install, in Claude Code:
+
+1. `/plugin marketplace add BuildwithMaryam/squeezed-orange-ai-budgeting`
+2. `/plugin install squeezed-orange@squeezed-orange-marketplace`
+3. `/finance-setup`
+
+If `/finance-setup` is not recognized, restart Claude Code.
 
 Sync: every 6 hours while the Claude desktop app is open. The dashboard shows when the next sync is due. To sync sooner, tell Claude "Sync my finances now".
 
