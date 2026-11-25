@@ -19,7 +19,7 @@ It reads only the alert emails that get automatically forwarded to a dedicated i
 *Illustrative screenshot with made-up data.*
 
 <!-- eval-score:start -->
-**Tested:** 35 of 35 automated checks passing on 2026-11-24, plus 3 of 3 model-graded eval cases on 2026-11-25. Details are in `evals/`.
+**Tested:** 35 of 35 automated checks passing on 2026-11-25, plus 3 of 3 model-graded eval cases on 2026-11-25. Details are in `evals/`.
 <!-- eval-score:end -->
 
 ## One-time manual setup (required, about 30 minutes for 5 bank or card accounts)
@@ -35,6 +35,7 @@ Squeezed Orange never logs in to your bank, so you connect it once yourself. Aft
 | 4b. Alert formats | `/finance-setup` has you paste one example alert per bank (private details removed) and writes the matching `banks.json` entry. |
 | 5. Delivery check (manual) | After setup, use each of your cards and accounts for your next purchases and watch your finance inbox to confirm an alert arrives for each one. If an account goes a month with no alerts, check its alert and forwarding settings. This cannot be tested automatically because it depends on your bank. |
 | 6. Optional backfill | Download a CSV from each bank or card website and upload it on the Spending tab to load past months. |
+| 7. Optional: install as an app | In Claude Desktop (6.28899.0 or later, Mac or Windows), open your dashboard and choose **Install as app** from the Share or title menu. This is a beta and may not be available on every account. |
 
 Until step 6 or a few months of alerts, answers that need merchant history say "not enough history yet".
 
