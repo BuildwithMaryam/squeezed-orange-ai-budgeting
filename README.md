@@ -22,6 +22,29 @@ It reads only the alert emails that get automatically forwarded to a dedicated i
 **Tested:** 35 of 35 automated checks passing on 2026-11-25, plus 3 of 3 model-graded eval cases on 2026-11-25. Details are in `evals/`.
 <!-- eval-score:end -->
 
+## Example prompts
+
+- "Suggest ways to save $500 a month."
+- "Was I charged twice for anything?"
+- "Which charges repeat every month?"
+- "Sync my finances now."
+
+## What it does with your data
+
+| Behavior | Detail |
+|---|---|
+| Gmail | Read-only (`gmail.readonly`) through your own Google Cloud OAuth client. Skips Promotions and Social; reads the last 90 days on the first sync, then new mail. |
+| Files on your computer | `~/.finance-sync/` holds your OAuth client file, access token, downloaded email text and attachments, and settings. Email text is stored as received. |
+| Claude | Claude reads alerts the parser cannot, and categorizes them. Dashboard questions send your totals, budgets, income, fixed costs and recent transactions to Claude. |
+| Dashboard | Transactions, balances and settings are saved in your Claude artifact's database. Anyone you share the artifact with may be able to see them. |
+| Schedule | `/finance-setup` creates a sync task that runs every 6 hours while the desktop app is open. |
+| Installs | `/finance-setup` creates a Python virtual environment and installs the packages in `scripts/requirements.txt` from PyPI. |
+| MarBeh Tech LLC | The plugin sends us no data. |
+
+To delete: remove `~/.finance-sync/`, delete the dashboard artifact and the scheduled task, and revoke access at myaccount.google.com/permissions.
+
+Privacy policy: https://maryamreza.com/squeezed-orange/privacy/
+
 ## One-time manual setup (required, about 30 minutes for 5 bank or card accounts)
 
 Squeezed Orange never logs in to your bank, so you connect it once yourself. After that it runs on its own.
@@ -59,7 +82,7 @@ Until step 6 or a few months of alerts, answers that need merchant history say "
 | Automated checks | `plugins/squeezed-orange/tests/` (run `python3 plugins/squeezed-orange/scripts/run_checks.py`) |
 | Model-graded evals | `plugins/squeezed-orange/evals/` (run `claude plugin eval .` in the plugin folder) |
 
-Status: pre-release (v0.1.0).
+Status: pre-release (v0.1.1).
 
 Install, in Claude Code:
 

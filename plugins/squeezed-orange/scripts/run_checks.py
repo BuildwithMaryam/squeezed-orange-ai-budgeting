@@ -34,14 +34,14 @@ def main():
         m = json.loads(mg.read_text())
         extra = f", plus {m['casesPassed']} of {m['casesTotal']} model-graded eval cases on {m['date']}"
     line = f"**Tested:** {passed} of {total} automated checks passing on {score['date']}{extra}. Details are in `evals/`."
-    readme = REPO / "README.md"
-    text = readme.read_text()
     block = f"<!-- eval-score:start -->\n{line}\n<!-- eval-score:end -->"
-    if "<!-- eval-score:start -->" in text:
-        text = re.sub(r"<!-- eval-score:start -->.*?<!-- eval-score:end -->", block, text, flags=re.S)
-    else:
-        text = text.replace("\n## ", f"\n{block}\n\n## ", 1) if "\n## " in text else text + "\n" + block + "\n"
-    readme.write_text(text)
+    for readme in (REPO / "README.md", PLUGIN / "README.md"):
+        text = readme.read_text()
+        if "<!-- eval-score:start -->" in text:
+            text = re.sub(r"<!-- eval-score:start -->.*?<!-- eval-score:end -->", block, text, flags=re.S)
+        else:
+            text = text.replace("\n## ", f"\n{block}\n\n## ", 1) if "\n## " in text else text + "\n" + block + "\n"
+        readme.write_text(text)
     print(f"{passed}/{total} checks passing")
     return 0 if passed == total and r1.returncode in (0, 1) and r2.returncode in (0, 1) else 1
 
