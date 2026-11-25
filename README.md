@@ -2,9 +2,9 @@
 
 # Squeezed Orange
 
-AI automates your budget, spots money leaks, and suggests savings without accessing your bank account.
+AI automates your budget, spots money leaks, and suggests savings without accessing your bank account; example question it answers: Suggest ways to save $500 a month. Which expenses were outliers? Was I charged twice? Can I spend $300 this weekend? Which charges repeat every month?
 
-It reads only the alert emails you forward to a dedicated inbox (read-only Gmail) and any CSV you upload.
+It reads only the alert emails that get automatically forwarded to a dedicated inbox (read-only Gmail) and any CSV you upload.
 
 ## Requirements
 
